@@ -16,3 +16,13 @@ bevy_geppetto = { git = "https://github.com/snendev/bevy_geppetto" }
 name = "scene"
 path = "e2e/scene.rs"
 harness = false
+
+[[test]]
+name = "cheese"
+path = "e2e/cheese.rs"
+harness = false
+
+[[test]]
+name = "ragdoll"
+path = "e2e/ragdoll.rs"
+harness = false

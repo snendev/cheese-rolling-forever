@@ -4,6 +4,9 @@ use bevy_xpbd_3d::prelude::*;
 mod camera;
 use camera::PlayerCameraPlugin;
 
+mod person;
+pub use person::*;
+
 pub struct CheeseGamePlugin;
 
 impl Plugin for CheeseGamePlugin {
