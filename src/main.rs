@@ -25,7 +25,7 @@ fn spawn_ragdolls(
 ) {
     for x in -10..=10 {
         Person::default().spawn_ragdoll(
-            Vec3::X * (x as f32) + Vec3::Y * 2.,
+            Vec3::new(x as f32, 10., -8.),
             &mut commands,
             &mut meshes,
             &mut materials,

@@ -4,6 +4,9 @@ use bevy_xpbd_3d::prelude::*;
 mod camera;
 use camera::PlayerCameraPlugin;
 
+mod cheese;
+pub use cheese::*;
+
 mod person;
 pub use person::*;
 
@@ -11,7 +14,34 @@ pub struct CheeseGamePlugin;
 
 impl Plugin for CheeseGamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((PhysicsPlugins::default(), PlayerCameraPlugin));
+        app.add_plugins((PhysicsPlugins::default(), PlayerCameraPlugin))
+            .add_systems(Update, handle_inputs);
+    }
+}
+
+fn handle_inputs(
+    inputs: Res<Input<KeyCode>>,
+    mut query: Query<(&LinearVelocity, &mut ExternalAngularImpulse), With<Cheese>>,
+) {
+    const INFLUENCE: f32 = 1.0e-2;
+    // "reference" refers to the reference frame, the coordinate system of the cheese's
+    // downhill motion where "forward" is the direction of movement and "up" is perpendicular
+    // to the hill.
+    let reference_frame_influence = if inputs.pressed(KeyCode::Left) {
+        Some(-INFLUENCE)
+    } else if inputs.pressed(KeyCode::Right) {
+        Some(INFLUENCE)
+    } else {
+        None
+    };
+
+    if let Some(influence) = reference_frame_influence {
+        for (velocity, mut impulse) in query.iter_mut() {
+            // weight shift along velocity axis
+            let spin_axis = velocity.0.normalize();
+            let torque_impulse = influence * spin_axis;
+            impulse.set_impulse(torque_impulse);
+        }
     }
 }
 
@@ -24,9 +54,12 @@ impl Plugin for RaceScenePlugin {
             |mut commands: Commands,
              mut meshes: ResMut<Assets<Mesh>>,
              mut materials: ResMut<Assets<StandardMaterial>>| {
-                commands.spawn(PointLightBundle {
-                    point_light: PointLight::default(),
-                    transform: Transform::from_xyz(0., 8., 5.),
+                commands.spawn(DirectionalLightBundle {
+                    directional_light: DirectionalLight {
+                        illuminance: 10.0e3,
+                        ..Default::default()
+                    },
+                    transform: Transform::from_xyz(2., 10., 5.).looking_at(Vec3::ZERO, Vec3::Y),
                     ..Default::default()
                 });
                 commands.spawn(Cheese::bundle(&mut meshes, &mut materials));
@@ -38,52 +71,10 @@ impl Plugin for RaceScenePlugin {
 
 #[derive(Clone, Copy)]
 #[derive(Component)]
-pub struct Cheese;
-
-impl Cheese {
-    // estimates at the size of the cheese wheel taken from
-    // https://www.houseofcheese.co.uk/acatalog/A-Whole-Double-Gloucester-Cheese-25cm-dia-2310.html
-    // 6cm height
-    const HEIGHT: f32 = 0.06;
-    // 12.5cm rad
-    const RADIUS: f32 = 0.125;
-
-    fn collider() -> Collider {
-        Collider::cylinder(Self::HEIGHT, Self::RADIUS)
-    }
-
-    fn shape() -> shape::Cylinder {
-        shape::Cylinder {
-            height: Self::HEIGHT,
-            radius: Self::RADIUS,
-            ..Default::default()
-        }
-    }
-
-    fn bundle(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) -> impl Bundle {
-        (
-            Cheese,
-            Name::new("Cheese"),
-            RigidBody::Dynamic,
-            Self::collider(),
-            GravityScale(0.),
-            PbrBundle {
-                mesh: meshes.add(Self::shape().into()),
-                material: materials.add(Color::rgb(1., 0.98, 0.8).into()),
-                transform: Transform::from_translation(Vec3::Y * 1.)
-                    .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2)),
-                ..Default::default()
-            },
-        )
-    }
-}
-
-#[derive(Clone, Copy)]
-#[derive(Component)]
 pub struct Terrain;
 
 impl Terrain {
-    const SIZE: f32 = 100.;
+    const SIZE: f32 = 1000.;
 
     fn meshes() -> (Mesh, Collider) {
         let mesh = shape::Plane {
