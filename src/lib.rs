@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 
 mod camera;
-use camera::PlayerCameraPlugin;
+pub use camera::*;
 
 mod cheese;
 pub use cheese::*;
@@ -10,38 +10,14 @@ pub use cheese::*;
 mod person;
 pub use person::*;
 
+mod systems;
+
 pub struct CheeseGamePlugin;
 
 impl Plugin for CheeseGamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((PhysicsPlugins::default(), PlayerCameraPlugin))
-            .add_systems(Update, handle_inputs);
-    }
-}
-
-fn handle_inputs(
-    inputs: Res<Input<KeyCode>>,
-    mut query: Query<(&LinearVelocity, &mut ExternalAngularImpulse), With<Cheese>>,
-) {
-    const INFLUENCE: f32 = 1.0e-2;
-    // "reference" refers to the reference frame, the coordinate system of the cheese's
-    // downhill motion where "forward" is the direction of movement and "up" is perpendicular
-    // to the hill.
-    let reference_frame_influence = if inputs.pressed(KeyCode::Left) {
-        Some(-INFLUENCE)
-    } else if inputs.pressed(KeyCode::Right) {
-        Some(INFLUENCE)
-    } else {
-        None
-    };
-
-    if let Some(influence) = reference_frame_influence {
-        for (velocity, mut impulse) in query.iter_mut() {
-            // weight shift along velocity axis
-            let spin_axis = velocity.0.normalize();
-            let torque_impulse = influence * spin_axis;
-            impulse.set_impulse(torque_impulse);
-        }
+        app.add_plugins(PhysicsPlugins::default())
+            .add_systems(Update, (systems::handle_inputs, systems::chase_cheese));
     }
 }
 

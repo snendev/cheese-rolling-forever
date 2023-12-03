@@ -4,11 +4,12 @@ use bevy_geppetto::Test;
 
 use bevy_xpbd_3d::plugins::PhysicsDebugPlugin;
 
-use cheese::{CheeseGamePlugin, Person, RaceScenePlugin};
+use cheese::{CheeseGamePlugin, Person, PlayerCameraPlugin, RaceScenePlugin};
 
 fn main() {
     Test::new("Game scene".to_string(), |app| {
         app.add_plugins((
+            PlayerCameraPlugin,
             CheeseGamePlugin,
             RaceScenePlugin,
             PhysicsDebugPlugin::default(),

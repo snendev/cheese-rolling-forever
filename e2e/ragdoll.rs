@@ -4,23 +4,21 @@ use bevy_geppetto::Test;
 
 use bevy_xpbd_3d::{
     components::{Collider, GravityScale},
-    plugins::{PhysicsDebugPlugin, PhysicsPlugins},
+    plugins::PhysicsDebugPlugin,
+    resources::Gravity,
 };
 
-use cheese::{Person, RaceScenePlugin};
+use cheese::{Cheese, CheeseGamePlugin, Person};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, ScheduleLabel)]
 pub struct FakeSchedule;
 
 fn main() {
     Test::new("Game scene".to_string(), |app| {
-        app.add_plugins((
-            PhysicsPlugins::default(),
-            RaceScenePlugin,
-            PhysicsDebugPlugin::default(),
-        ))
-        .add_systems(Update, (handle_start, remove_gravity_scale))
-        .add_systems(Startup, (spawn_person, spawn_camera));
+        app.insert_resource(Gravity(Vec3::ZERO))
+            .add_plugins((CheeseGamePlugin, PhysicsDebugPlugin::default()))
+            .add_systems(Update, (handle_start, remove_gravity_scale))
+            .add_systems(Startup, spawn_scene);
     })
     .run();
 }
@@ -39,17 +37,31 @@ fn handle_start(inputs: Res<Input<KeyCode>>, mut q: Query<&mut GravityScale>) {
     }
 }
 
-fn spawn_camera(mut commands: Commands) {
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(0., 3., 5.).looking_at(Vec3::Y * 2., Vec3::Y),
-        ..Default::default()
-    });
-}
-
-fn spawn_person(
+fn spawn_scene(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    Person::default().spawn_ragdoll(Vec3::Y * 2., &mut commands, &mut meshes, &mut materials);
+    commands.spawn(Camera3dBundle {
+        transform: Transform::from_xyz(0., 0., 5.).looking_at(Vec3::ZERO, Vec3::Y),
+        ..Default::default()
+    });
+
+    commands.spawn(DirectionalLightBundle {
+        directional_light: DirectionalLight {
+            illuminance: 10.0e3,
+            ..Default::default()
+        },
+        transform: Transform::from_xyz(2., 10., 5.).looking_at(Vec3::ZERO, Vec3::Y),
+        ..Default::default()
+    });
+
+    Person::default().spawn_ragdoll(
+        Vec3::new(3., 0., -3.),
+        &mut commands,
+        &mut meshes,
+        &mut materials,
+    );
+
+    commands.spawn(Cheese::bundle(&mut meshes, &mut materials));
 }

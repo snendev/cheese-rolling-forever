@@ -15,7 +15,8 @@ impl Default for Person {
 }
 
 impl Person {
-    const MASS_DENSITY: f32 = 100000.;
+    const BODY_MASS_DENSITY: f32 = 500000.;
+    const LIMB_MASS_DENSITY: f32 = 10000.;
     const BASE_HEAD_RADIUS: f32 = 0.09;
 
     const BASE_TORSO_LENGTH: f32 = 0.5;
@@ -30,7 +31,7 @@ impl Person {
     }
 
     pub fn spawn_ragdoll(
-        &self,
+        self,
         origin: Vec3,
         commands: &mut Commands,
         meshes: &mut Assets<Mesh>,
@@ -53,20 +54,11 @@ impl Person {
             depth: torso_height,
             ..Default::default()
         };
-        let torso_collider = Collider::capsule(torso_height, torso_radius);
+        let torso_collider = Collider::cylinder(torso_height, torso_radius);
         /*** ***/
 
         /*** limbs ***/
         let limb_radius = Self::BASE_LIMB_RADIUS * self.girth;
-
-        // leg
-        let leg_height = Self::BASE_LIMB_LENGTH * self.size - limb_radius * 2.;
-        let leg_shape = shape::Capsule {
-            radius: limb_radius,
-            depth: leg_height,
-            ..Default::default()
-        };
-        let leg_collider = Collider::capsule(leg_height, limb_radius);
 
         // arm
         let arm_height =
@@ -77,16 +69,34 @@ impl Person {
             ..Default::default()
         };
         let arm_collider = Collider::capsule(arm_height, limb_radius);
+
+        // hand
+        let hand_size = Self::BASE_LIMB_RADIUS * 1.1;
+        let hand_shape = shape::UVSphere {
+            radius: hand_size,
+            ..Default::default()
+        };
+        let hand_collider = Collider::ball(hand_size);
+
+        // leg
+        let leg_height = Self::BASE_LIMB_LENGTH * self.size - limb_radius * 2.;
+        let leg_shape = shape::Capsule {
+            radius: limb_radius,
+            depth: leg_height,
+            ..Default::default()
+        };
+        let leg_collider = Collider::capsule(leg_height, limb_radius);
         /*** ***/
 
         /*** spawn the person ***/
         let leg_total_height = leg_height + limb_radius * 2.;
         let head = commands
             .spawn((
+                Head,
                 Name::new("Head"),
                 RigidBody::Dynamic,
                 head_collider,
-                ColliderDensity(Self::MASS_DENSITY),
+                ColliderDensity(Self::BODY_MASS_DENSITY),
                 PbrBundle {
                     mesh: meshes.add(head_shape.into()),
                     material: materials.add(Color::RED.into()),
@@ -96,7 +106,7 @@ impl Person {
                                 * (leg_total_height
                                     + torso_height
                                     + torso_radius * 2.
-                                    + head_radius * 0.4),
+                                    + head_radius * 0.5),
                     ),
                     ..Default::default()
                 },
@@ -105,10 +115,11 @@ impl Person {
 
         let torso = commands
             .spawn((
+                Torso,
                 Name::new("Torso"),
                 RigidBody::Dynamic,
                 torso_collider,
-                ColliderDensity(Self::MASS_DENSITY * 2.),
+                ColliderDensity(Self::BODY_MASS_DENSITY * 2.),
                 PbrBundle {
                     mesh: meshes.add(torso_shape.into()),
                     material: materials.add(Color::RED.into()),
@@ -122,10 +133,11 @@ impl Person {
 
         let left_arm = commands
             .spawn((
+                Arm,
                 Name::new("Left Arm"),
                 RigidBody::Dynamic,
                 arm_collider.clone(),
-                ColliderDensity(Self::MASS_DENSITY),
+                ColliderDensity(Self::LIMB_MASS_DENSITY),
                 PbrBundle {
                     mesh: meshes.add(arm_shape.into()),
                     material: materials.add(Color::RED.into()),
@@ -141,13 +153,13 @@ impl Person {
                 },
             ))
             .id();
-
         let right_arm = commands
             .spawn((
+                Arm,
                 Name::new("Right Arm"),
                 RigidBody::Dynamic,
                 arm_collider,
-                ColliderDensity(Self::MASS_DENSITY),
+                ColliderDensity(Self::LIMB_MASS_DENSITY),
                 PbrBundle {
                     mesh: meshes.add(arm_shape.into()),
                     material: materials.add(Color::RED.into()),
@@ -164,20 +176,43 @@ impl Person {
             ))
             .id();
 
-        let left_leg = commands
+        let left_hand = commands
             .spawn((
-                Name::new("Left Leg"),
+                Hand,
+                Name::new("Left Hand"),
                 RigidBody::Dynamic,
-                leg_collider.clone(),
-                ColliderDensity(Self::MASS_DENSITY),
+                hand_collider.clone(),
+                ColliderDensity(Self::LIMB_MASS_DENSITY),
                 PbrBundle {
-                    mesh: meshes.add(leg_shape.into()),
+                    mesh: meshes.add(hand_shape.into()),
                     material: materials.add(Color::RED.into()),
                     transform: Transform::from_translation(
                         origin
                             + Vec3::new(
-                                -torso_radius + limb_radius * 2.,
-                                leg_total_height / 2.,
+                                -torso_radius - arm_height - limb_radius * 2.,
+                                leg_total_height + torso_height + torso_radius * 0.6,
+                                0.,
+                            ),
+                    ),
+                    ..Default::default()
+                },
+            ))
+            .id();
+        let right_hand = commands
+            .spawn((
+                Hand,
+                Name::new("Right Hand"),
+                RigidBody::Dynamic,
+                hand_collider,
+                ColliderDensity(Self::LIMB_MASS_DENSITY),
+                PbrBundle {
+                    mesh: meshes.add(hand_shape.into()),
+                    material: materials.add(Color::RED.into()),
+                    transform: Transform::from_translation(
+                        origin
+                            + Vec3::new(
+                                torso_radius + arm_height + limb_radius * 2.,
+                                leg_total_height + torso_height + torso_radius * 0.6,
                                 0.,
                             ),
                     ),
@@ -186,12 +221,35 @@ impl Person {
             ))
             .id();
 
+        let left_leg = commands
+            .spawn((
+                Leg,
+                Name::new("Left Leg"),
+                RigidBody::Dynamic,
+                leg_collider.clone(),
+                ColliderDensity(Self::LIMB_MASS_DENSITY),
+                PbrBundle {
+                    mesh: meshes.add(leg_shape.into()),
+                    material: materials.add(Color::RED.into()),
+                    transform: Transform::from_translation(
+                        origin
+                            + Vec3::new(
+                                -torso_radius + limb_radius * 0.8,
+                                leg_total_height / 2.,
+                                0.,
+                            ),
+                    ),
+                    ..Default::default()
+                },
+            ))
+            .id();
         let right_leg = commands
             .spawn((
+                Arm,
                 Name::new("Right Leg"),
                 RigidBody::Dynamic,
                 leg_collider,
-                ColliderDensity(Self::MASS_DENSITY),
+                ColliderDensity(Self::LIMB_MASS_DENSITY),
                 PbrBundle {
                     mesh: meshes.add(leg_shape.into()),
                     material: materials.add(Color::RED.into()),
@@ -208,6 +266,7 @@ impl Person {
             ))
             .id();
 
+        // head-torso
         let neck_joint = commands
             .spawn((
                 Name::new("Neck Joint"),
@@ -224,9 +283,11 @@ impl Person {
                 },
             ))
             .id();
+
+        // torso-arm
         let left_shoulder_joint = commands
             .spawn((
-                Name::new("Right Shoulder Joint"),
+                Name::new("Left Shoulder Joint"),
                 SphericalJoint {
                     swing_axis: Vec3::NEG_X,
                     twist_axis: Vec3::Y,
@@ -258,6 +319,28 @@ impl Person {
                 },
             ))
             .id();
+
+        // arm-hand
+        let left_wrist_joint = commands
+            .spawn((
+                Name::new("Left Wrist Joint"),
+                FixedJoint::new(left_arm, left_hand)
+                    .with_local_anchor_1(Vec3::NEG_Y * (arm_height / 2. + limb_radius))
+                    .with_local_anchor_2(Vec3::ZERO)
+                    .with_compliance(1e-7),
+            ))
+            .id();
+        let right_wrist_joint = commands
+            .spawn((
+                Name::new("Right Wrist Joint"),
+                FixedJoint::new(right_arm, right_hand)
+                    .with_local_anchor_1(Vec3::Y * (arm_height / 2. + limb_radius))
+                    .with_local_anchor_2(Vec3::ZERO)
+                    .with_compliance(1e-7),
+            ))
+            .id();
+
+        // hip joint
         let left_hip_joint = commands
             .spawn((
                 Name::new("Left Hip Joint"),
@@ -298,17 +381,32 @@ impl Person {
             .id();
 
         commands
-            .spawn((Name::new("Person"), SpatialBundle::default()))
+            .spawn((self, Name::new("Person"), SpatialBundle::default()))
             .add_child(head)
             .add_child(torso)
             .add_child(left_arm)
             .add_child(right_arm)
+            .add_child(left_hand)
+            .add_child(right_hand)
             .add_child(left_leg)
             .add_child(right_leg)
             .add_child(neck_joint)
             .add_child(left_shoulder_joint)
             .add_child(right_shoulder_joint)
+            .add_child(left_wrist_joint)
+            .add_child(right_wrist_joint)
             .add_child(left_hip_joint)
             .add_child(right_hip_joint);
     }
 }
+
+#[derive(Component)]
+pub(crate) struct Head;
+#[derive(Component)]
+pub(crate) struct Torso;
+#[derive(Component)]
+pub(crate) struct Arm;
+#[derive(Component)]
+pub(crate) struct Hand;
+#[derive(Component)]
+pub(crate) struct Leg;
