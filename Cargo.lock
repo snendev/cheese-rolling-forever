@@ -1016,6 +1016,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_shader_utils"
+version = "0.6.0"
+source = "git+https://github.com/rust-adventure/bevy-examples#44c972bbd0fdd99e9fc91b7bfff869b5f8e0ddb3"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bevy_sprite"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1427,8 +1435,10 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy_geppetto",
+ "bevy_shader_utils",
  "bevy_xpbd_3d",
  "dolly",
+ "itertools 0.10.5",
  "leafwing-input-manager",
 ]
 
@@ -2482,6 +2492,15 @@ checksum = "4769cb30e5dcf1710fc6730d3e94f78c47723a014a567de385e113c737394640"
 dependencies = [
  "core-foundation-sys",
  "mach2",
+]
+
+[[package]]
+name = "itertools"
+version = "0.10.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
+dependencies = [
+ "either",
 ]
 
 [[package]]
