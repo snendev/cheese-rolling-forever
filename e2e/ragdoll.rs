@@ -14,7 +14,7 @@ use cheese::{Cheese, CheeseGamePlugin, Person};
 pub struct FakeSchedule;
 
 fn main() {
-    Test::new("Game scene".to_string(), |app| {
+    Test::new("Ragdoll".to_string(), |app| {
         app.insert_resource(Gravity(Vec3::ZERO))
             .add_plugins((CheeseGamePlugin, PhysicsDebugPlugin::default()))
             .add_systems(Update, (handle_start, remove_gravity_scale))

@@ -40,7 +40,7 @@ impl Cheese {
             PbrBundle {
                 mesh: meshes.add(Self::shape().into()),
                 material: materials.add(Color::rgb(1., 0.98, 0.8).into()),
-                transform: Transform::from_translation(Vec3::Y * Self::RADIUS * 1.3)
+                transform: Transform::from_translation(Vec3::Y * 2.)
                     .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2)),
                 ..Default::default()
             },

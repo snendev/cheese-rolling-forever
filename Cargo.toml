@@ -7,6 +7,7 @@ edition = "2021"
 bevy = "0.12.1"
 bevy_xpbd_3d = "0.3.2"
 dolly = "0.4.2"
+noise = "0.8"
 
 [dev-dependencies]
 bevy_geppetto = { git = "https://github.com/snendev/bevy_geppetto" }

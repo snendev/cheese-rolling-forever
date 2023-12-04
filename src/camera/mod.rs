@@ -11,7 +11,7 @@ pub struct PlayerCamera;
 
 impl PlayerCamera {
     const RIG_Z_OFFSET: f32 = -2.;
-    const RIG_Y_OFFSET: f32 = 1.5;
+    const RIG_Y_OFFSET: f32 = 5.;
 
     fn bundle(cheese_transform: &Transform) -> impl Bundle {
         let camera_offset = Vec3::new(0., Self::RIG_Y_OFFSET, Self::RIG_Z_OFFSET);
@@ -50,7 +50,6 @@ impl PlayerCamera {
         for mut rig in rig_query.iter_mut() {
             let (target, _cheese) = cheese_query.single();
             rig.driver_mut::<Position>().position = target.translation;
-            rig.driver_mut::<Arm>().offset.z = PlayerCamera::RIG_Z_OFFSET;
             let target = target.translation;
             rig.driver_mut::<LookAt>().target = target;
         }
