@@ -10,7 +10,7 @@ use crate::Cheese;
 pub struct PlayerCamera;
 
 impl PlayerCamera {
-    const RIG_Z_OFFSET: f32 = -2.;
+    const RIG_Z_OFFSET: f32 = 3.;
     const RIG_Y_OFFSET: f32 = 5.;
 
     fn bundle(cheese_transform: &Transform) -> impl Bundle {

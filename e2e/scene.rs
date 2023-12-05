@@ -24,7 +24,7 @@ fn spawn_ragdolls(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    for x in -10..=10 {
+    for x in -3..=3 {
         Person::default().spawn_ragdoll(
             Vec3::new(x as f32, 10., -8.),
             &mut commands,

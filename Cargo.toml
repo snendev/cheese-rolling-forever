@@ -13,11 +13,6 @@ noise = "0.8"
 bevy_geppetto = { git = "https://github.com/snendev/bevy_geppetto" }
 
 [[test]]
-name = "scene"
-path = "e2e/scene.rs"
-harness = false
-
-[[test]]
 name = "cheese"
 path = "e2e/cheese.rs"
 harness = false
@@ -25,4 +20,14 @@ harness = false
 [[test]]
 name = "ragdoll"
 path = "e2e/ragdoll.rs"
+harness = false
+
+[[test]]
+name = "scene"
+path = "e2e/scene.rs"
+harness = false
+
+[[test]]
+name = "terrain"
+path = "e2e/terrain.rs"
 harness = false
