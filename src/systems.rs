@@ -46,7 +46,7 @@ pub(crate) fn handle_inputs(
     }
 }
 
-pub fn update_terrain_mesh(
+pub(crate) fn update_terrain_mesh(
     mut commands: Commands,
     mut terrain_query: Query<(Entity, &mut Terrain, &Handle<Mesh>)>,
     cheese_query: Query<&Transform, With<Cheese>>,
