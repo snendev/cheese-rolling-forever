@@ -1,15 +1,18 @@
-#import bevy_pbr::mesh_view_bindings
-#import bevy_pbr::mesh_bindings
+#import bevy_pbr::{
+    mesh_functions,
+    skinning,
+    morph::morph,
+    forward_io::{Vertex, VertexOutput},
+    view_transformations::position_world_to_clip,
+}
+#import bevy_render::instance_index::get_instance_index
 
-// NOTE: Bindings must come before functions that use them!
-#import bevy_pbr::mesh_functions
-
-#import bevy_shader_utils::simplex_noise_3d
+#import bevy_shader_utils::simplex_noise_3d simplex_noise_3d
 #import bevy_shader_utils::simplex_noise_2d
 
 struct StandardMaterial {
     time: f32,
-    // ship_position: vec3<f32>,
+    ship_position: vec3<f32>,
     // base_color: vec4<f32>;
     // emissive: vec4<f32>;
     // perceptual_roughness: f32;
@@ -25,74 +28,97 @@ var<uniform> material: StandardMaterial;
 @group(1) @binding(1)
 var<uniform> ship_position: vec3<f32>;
 
-struct Vertex {
-    @location(0) position: vec3<f32>,
-    @location(1) normal: vec3<f32>,
-#ifdef VERTEX_UVS
-    @location(2) uv: vec2<f32>,
+#ifdef MORPH_TARGETS
+fn morph_vertex(vertex_in: Vertex) -> Vertex {
+    var vertex = vertex_in;
+    let weight_count = bevy_pbr::morph::layer_count();
+    for (var i: u32 = 0u; i < weight_count; i ++) {
+        let weight = bevy_pbr::morph::weight_at(i);
+        if weight == 0.0 {
+            continue;
+        }
+        vertex.position += weight * morph(vertex.index, bevy_pbr::morph::position_offset, i);
+#ifdef VERTEX_NORMALS
+        vertex.normal += weight * morph(vertex.index, bevy_pbr::morph::normal_offset, i);
 #endif
 #ifdef VERTEX_TANGENTS
-    @location(3) tangent: vec4<f32>,
+        vertex.tangent += vec4(weight * morph(vertex.index, bevy_pbr::morph::tangent_offset, i), 0.0);
 #endif
-#ifdef VERTEX_COLORS
-    @location(4) color: vec4<f32>,
+    }
+    return vertex;
+}
 #endif
-#ifdef SKINNED
-    @location(5) joint_indices: vec4<u32>,
-    @location(6) joint_weights: vec4<f32>,
-#endif
-};
-
-struct VertexOutput {
-    @builtin(position) clip_position: vec4<f32>,
-    @location(0) world_position: vec4<f32>,
-    @location(1) world_normal: vec3<f32>,
-#ifdef VERTEX_UVS
-    @location(2) uv: vec2<f32>,
-#endif
-#ifdef VERTEX_TANGENTS
-    @location(3) world_tangent: vec4<f32>,
-#endif
-#ifdef VERTEX_COLORS
-    @location(4) color: vec4<f32>,
-#endif
-};
 
 @vertex
-fn vertex(vertex: Vertex) -> VertexOutput {
+fn vertex(vertex_no_morph: Vertex) -> VertexOutput {
     var out: VertexOutput;
-#ifdef SKINNED
-    var model = skin_model(vertex.joint_indices, vertex.joint_weights);
-    out.world_normal = skin_normals(model, vertex.normal);
+
+#ifdef MORPH_TARGETS
+    var vertex = morph_vertex(vertex_no_morph);
 #else
-    var model = mesh.model;
-    out.world_normal = mesh_normal_local_to_world(vertex.normal);
+    var vertex = vertex_no_morph;
 #endif
-    out.world_position = mesh_position_local_to_world(model, vec4<f32>(vertex.position, 1.0));
+
+var noise = simplex_noise_3d(vertex.position);
+
+#ifdef SKINNED
+    var model = skinning::skin_model(vertex.joint_indices, vertex.joint_weights);
+#else
+    // Use vertex_no_morph.instance_index instead of vertex.instance_index to work around a wgpu dx12 bug.
+    // See https://github.com/gfx-rs/naga/issues/2416 .
+    var model = mesh_functions::get_model_matrix(vertex_no_morph.instance_index);
+#endif
+
+#ifdef VERTEX_NORMALS
+#ifdef SKINNED
+    out.world_normal = skinning::skin_normals(model, vertex.normal);
+#else
+    out.world_normal = mesh_functions::mesh_normal_local_to_world(
+        vertex.normal,
+        // Use vertex_no_morph.instance_index instead of vertex.instance_index to work around a wgpu dx12 bug.
+        // See https://github.com/gfx-rs/naga/issues/2416
+        get_instance_index(vertex_no_morph.instance_index)
+    );
+#endif
+#endif
+
+#ifdef VERTEX_POSITIONS
+    out.world_position = mesh_functions::mesh_position_local_to_world(model, vec4<f32>(vertex.position.x, noise, vertex.position.z, 1.0));
+    var t = ship_position;
+    out.world_position.y = out.world_position.y - 4.0 * sin(ship_position.z - out.world_position.z) / 100.;
+    out.position = position_world_to_clip(out.world_position.xyz);
+#endif
+
 #ifdef VERTEX_UVS
     out.uv = vertex.uv;
 #endif
+
 #ifdef VERTEX_TANGENTS
-    out.world_tangent = mesh_tangent_local_to_world(model, vertex.tangent);
+    out.world_tangent = mesh_functions::mesh_tangent_local_to_world(
+        model,
+        vertex.tangent,
+        // Use vertex_no_morph.instance_index instead of vertex.instance_index to work around a wgpu dx12 bug.
+        // See https://github.com/gfx-rs/naga/issues/2416
+        get_instance_index(vertex_no_morph.instance_index)
+    );
 #endif
+
 #ifdef VERTEX_COLORS
-    out.color = vertex.color;
+    out.color = vec4<f32>(0.5, noise, 0.5, 1.0);
 #endif
 
+#ifdef VERTEX_OUTPUT_INSTANCE_INDEX
+    // Use vertex_no_morph.instance_index instead of vertex.instance_index to work around a wgpu dx12 bug.
+    // See https://github.com/gfx-rs/naga/issues/2416
+    out.instance_index = get_instance_index(vertex_no_morph.instance_index);
+#endif
 
-    var noise = simplexNoise3(vertex.position);
-
-    // out.color = vec4<f32>(vertex.position.x, noise, vertex.position.z, 1.0);
-    out.color = vec4<f32>(0.5, noise, 0.5, 1.0);
-
-    out.world_position = mesh_position_local_to_world(model, vec4<f32>(vertex.position.x, noise, vertex.position.z, 1.0));
-    // out.world_position.x = -100.0;
-    // var offset = material.ship_position.z - out.world_position.z;
-    var t = ship_position;
-    out.world_position.y = out.world_position.y - 4.0 * sin(ship_position.z - out.world_position.z) / 100.;
-
-    out.clip_position = mesh_position_world_to_clip(out.world_position);
-
+#ifdef BASE_INSTANCE_WORKAROUND
+    // Hack: this ensures the push constant is always used, which works around this issue:
+    // https://github.com/bevyengine/bevy/issues/10509
+    // This can be removed when wgpu 0.19 is released
+    out.position.x += min(f32(get_instance_index(0u)), 0.0);
+#endif
 
     return out;
 }
