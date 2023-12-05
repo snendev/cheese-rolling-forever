@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 
-use crate::{Cheese, Hand};
+use crate::{generate_terrain_noise, Cheese, Hand, Terrain};
 
 // systems
 const CHEESE_PULL_STRENGTH: f32 = 10.0;
@@ -43,5 +43,37 @@ pub(crate) fn handle_inputs(
             let torque_impulse = influence * spin_axis;
             impulse.set_impulse(torque_impulse);
         }
+    }
+}
+
+pub fn update_terrain_mesh(
+    mut commands: Commands,
+    mut terrain_query: Query<(Entity, &mut Terrain, &Handle<Mesh>)>,
+    cheese_query: Query<&Transform, With<Cheese>>,
+    mut assets: ResMut<Assets<Mesh>>,
+) {
+    for (entity, mut terrain, handle) in terrain_query.iter_mut() {
+        let Ok(cheese_transform) = cheese_query.get_single() else {
+            continue;
+        };
+        let farthest_row_z = terrain.mesh_builder.quad_size.y * terrain.extents.1 as f32;
+        let trigger_planar_distance = terrain.mesh_builder.quad_size.y * 100.;
+
+        if (farthest_row_z - cheese_transform.translation.z).abs() >= trigger_planar_distance {
+            continue;
+        }
+
+        let Some(mesh) = assets.get_mut(handle.id()) else {
+            continue;
+        };
+        let noise = generate_terrain_noise();
+        terrain.extend(20);
+        *mesh = terrain.generate_mesh(&noise);
+
+        // counts of the number of vertices and indices to remove
+        commands
+            .entity(entity)
+            .remove::<Collider>()
+            .insert(AsyncCollider(ComputedCollider::TriMesh));
     }
 }

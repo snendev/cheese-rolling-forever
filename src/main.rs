@@ -21,12 +21,12 @@ fn spawn_ragdolls(
 ) {
     for x in -9..=9 {
         for y in -9..=9 {
-            Person::default().spawn_ragdoll(
-                Vec3::new(x as f32, 5. + (2. * y as f32), -8. + (-2. * y as f32)),
-                &mut commands,
-                &mut meshes,
-                &mut materials,
-            );
+            // Person::default().spawn_ragdoll(
+            //     Vec3::new(x as f32, 5. + (2. * y as f32), -8. + (-2. * y as f32)),
+            //     &mut commands,
+            //     &mut meshes,
+            //     &mut materials,
+            // );
         }
     }
 }

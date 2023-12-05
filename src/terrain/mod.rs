@@ -10,43 +10,22 @@ use bevy::{
 use bevy_xpbd_3d::prelude::*;
 
 mod noise_utils;
-use noise_utils::generate_terrain_noise;
+pub use noise_utils::generate_terrain_noise;
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Default)]
 #[derive(Component)]
-pub struct Terrain;
+pub struct Terrain {
+    pub mesh_builder: TerrainMeshBuilder,
+    // the index of the maximum row currently rendered
+    pub extents: (usize, usize),
+}
 
 impl Terrain {
-    const SIZE: f32 = 500.;
-
-    pub fn meshes() -> (Mesh, Collider) {
-        let noise = generate_terrain_noise();
-        let mesh: Mesh = Rectangle {
-            size: Vec2::new(30., Self::SIZE),
-            subdivision_size: Vec2::new(1., 1.),
+    pub fn new(extents: (usize, usize)) -> Self {
+        Self {
+            mesh_builder: TerrainMeshBuilder::default(),
+            extents,
         }
-        .into();
-        let positions = mesh
-            .attribute(Mesh::ATTRIBUTE_POSITION)
-            .map(|vertex_positions| {
-                vertex_positions
-                    .as_float3()
-                    .unwrap()
-                    .iter()
-                    .map(|&[x, y, z]| {
-                        [
-                            x,
-                            y + noise.get([(x / 10.).into(), (z / 10.).into()]) as f32,
-                            z,
-                        ]
-                    })
-                    .collect::<Vec<_>>()
-            })
-            .expect("mesh to have loaded some position buffer");
-        let mesh = mesh.with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, positions);
-
-        let collider = Collider::trimesh_from_mesh(&mesh).unwrap();
-        (mesh, collider)
     }
 
     pub fn bundle(
@@ -54,28 +33,134 @@ impl Terrain {
         materials: &mut Assets<StandardMaterial>,
         images: &mut Assets<Image>,
     ) -> impl Bundle {
-        let (mesh, collider) = Self::meshes();
+        let terrain = Terrain::new((0, 200));
+        let noise = generate_terrain_noise();
+        let mesh = terrain.generate_mesh(&noise);
         (
-            Terrain,
+            terrain,
             Name::new("Terrain"),
             RigidBody::Static,
-            collider,
+            AsyncCollider(ComputedCollider::TriMesh),
             PbrBundle {
                 mesh: meshes.add(mesh),
                 material: materials.add(StandardMaterial {
                     base_color_texture: Some(images.add(uv_debug_texture())),
                     ..default()
                 }),
-                transform: Transform::from_translation(Vec3::new(
-                    0.,
-                    -Self::SIZE / 4.,
-                    -Self::SIZE / 4.,
-                ))
-                .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_4)),
+                transform: Transform::default()
+                    .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_4)),
                 ..Default::default()
             },
         )
     }
+
+    pub fn extend(&mut self, rows_to_extend: usize) {
+        self.extents.0 += rows_to_extend;
+        self.extents.1 += rows_to_extend;
+    }
+
+    pub fn generate_mesh(&self, noise: &impl NoiseFn<f64, 2>) -> Mesh {
+        let chunk = self.mesh_builder.generate_chunk(
+            noise,
+            self.extents.1 - self.extents.0,
+            self.extents.0,
+        );
+
+        Mesh::new(PrimitiveTopology::TriangleList)
+            .with_indices(Some(Indices::U32(chunk.indices)))
+            .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, chunk.positions)
+            .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, chunk.normals)
+            .with_inserted_attribute(Mesh::ATTRIBUTE_UV_0, chunk.uvs)
+    }
+}
+
+/// A rectangle on the `XY` plane centered at the origin.
+/// Adapted from shape::Quad and shape::Plane to have a subdivided Quad
+#[derive(Debug, Clone)]
+pub struct TerrainMeshBuilder {
+    // the quad size of each rendered chunk of the mesh
+    pub quad_size: Vec2,
+    // the horizontal grid width of the terrain
+    pub vertices_per_row: u32,
+}
+
+impl Default for TerrainMeshBuilder {
+    fn default() -> Self {
+        TerrainMeshBuilder::new(Vec2::ONE * 2., 16)
+    }
+}
+
+impl TerrainMeshBuilder {
+    pub fn new(quad_size: Vec2, vertices_per_row: u32) -> Self {
+        Self {
+            quad_size,
+            vertices_per_row,
+        }
+    }
+
+    pub fn generate_chunk(
+        &self,
+        noise: &impl NoiseFn<f64, 2>,
+        chunk_size: usize,
+        start_index: usize,
+    ) -> TerrainMeshChunk {
+        let mut positions: Vec<[f32; 3]> =
+            Vec::with_capacity(chunk_size * self.vertices_per_row as usize);
+        let mut normals: Vec<[f32; 3]> =
+            Vec::with_capacity(chunk_size * self.vertices_per_row as usize);
+        let mut uvs: Vec<[f32; 2]> =
+            Vec::with_capacity(chunk_size * self.vertices_per_row as usize);
+        // Each row is (M - 1) X (N-1) quads
+        let mut indices: Vec<u32> =
+            Vec::with_capacity((chunk_size - 1) * (self.vertices_per_row as usize - 1) * 6);
+
+        for z in start_index..(start_index + chunk_size) {
+            for x in 0..self.vertices_per_row {
+                let tx = (x as f32) / (self.vertices_per_row - 1) as f32 - 0.5;
+                positions.push([
+                    tx * (self.vertices_per_row as f32) * self.quad_size.x,
+                    noise.get([x as f64, z as f64]) as f32,
+                    (z as f32) * self.quad_size.y - self.quad_size.y * 0.5,
+                ]);
+                normals.push(Vec3::Y.to_array());
+                uvs.push([
+                    tx,
+                    (z as u32 % self.vertices_per_row) as f32 / self.vertices_per_row as f32,
+                ]);
+            }
+
+            let adjusted_z = z as u32 - start_index as u32;
+            if adjusted_z < chunk_size as u32 - 1 {
+                for x in 0..(self.vertices_per_row - 1) {
+                    let quad_index = self.vertices_per_row * adjusted_z + x;
+                    // right triangle
+                    indices.push(quad_index + self.vertices_per_row + 1);
+                    indices.push(quad_index + 1);
+                    indices.push(quad_index + self.vertices_per_row);
+                    // left triangle
+                    indices.push(quad_index);
+                    indices.push(quad_index + self.vertices_per_row);
+                    indices.push(quad_index + 1);
+                }
+            }
+        }
+
+        TerrainMeshChunk {
+            positions,
+            normals,
+            uvs,
+            indices,
+        }
+    }
+}
+
+// A chunk extends the terrain exactly one quad further, aka one "row" of vertices
+#[derive(Debug)]
+pub struct TerrainMeshChunk {
+    pub positions: Vec<[f32; 3]>,
+    pub normals: Vec<[f32; 3]>,
+    pub uvs: Vec<[f32; 2]>,
+    pub indices: Vec<u32>,
 }
 
 /// Creates a colorful test pattern
@@ -104,82 +189,4 @@ fn uv_debug_texture() -> Image {
         &texture_data,
         TextureFormat::Rgba8UnormSrgb,
     )
-}
-
-/// A rectangle on the `XY` plane centered at the origin.
-/// Adapted from shape::Quad and shape::Plane to have a subdivided Quad
-#[derive(Debug, Copy, Clone)]
-pub struct Rectangle {
-    /// Full width and height of the rectangle.
-    pub size: Vec2,
-    /// the size of each "chunk" of vertices on the mesh
-    pub subdivision_size: Vec2,
-}
-
-impl Default for Rectangle {
-    fn default() -> Self {
-        Rectangle::new(Vec2::ONE, Vec2::ONE)
-    }
-}
-
-impl Rectangle {
-    pub fn new(size: Vec2, subdivision_size: Vec2) -> Self {
-        Self {
-            size,
-            subdivision_size,
-        }
-    }
-}
-
-impl From<Rectangle> for Mesh {
-    fn from(rectangle: Rectangle) -> Self {
-        let Vec2 {
-            x: x_vertex_count,
-            y: z_vertex_count,
-        } = (rectangle.size * 2. / rectangle.subdivision_size).floor();
-        let x_vertex_count = x_vertex_count as u32;
-        let z_vertex_count = z_vertex_count as u32;
-
-        let num_vertices = (z_vertex_count * x_vertex_count) as usize;
-        let num_indices = (z_vertex_count - 1) * (x_vertex_count - 1) * 6;
-        let up = Vec3::Y.to_array();
-
-        let mut positions: Vec<[f32; 3]> = Vec::with_capacity(num_vertices);
-        let mut normals: Vec<[f32; 3]> = Vec::with_capacity(num_vertices);
-        let mut uvs: Vec<[f32; 2]> = Vec::with_capacity(num_vertices);
-        let mut indices: Vec<u32> = Vec::with_capacity(num_indices as usize);
-
-        for z in 0..z_vertex_count {
-            for x in 0..x_vertex_count {
-                // just use subdivision_size here?
-                let tx = x as f32 / (x_vertex_count - 1) as f32;
-                let tz = z as f32 / (z_vertex_count - 1) as f32;
-                positions.push([
-                    (-0.5 + tx) * rectangle.size.x,
-                    0.0,
-                    (-0.5 + tz) * rectangle.size.y,
-                ]);
-                normals.push(up);
-                uvs.push([tx, tz]);
-            }
-        }
-
-        for y in 0..z_vertex_count - 1 {
-            for x in 0..x_vertex_count - 1 {
-                let rectangle = y * x_vertex_count + x;
-                indices.push(rectangle + x_vertex_count + 1);
-                indices.push(rectangle + 1);
-                indices.push(rectangle + x_vertex_count);
-                indices.push(rectangle);
-                indices.push(rectangle + x_vertex_count);
-                indices.push(rectangle + 1);
-            }
-        }
-
-        Mesh::new(PrimitiveTopology::TriangleList)
-            .with_indices(Some(Indices::U32(indices)))
-            .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, positions)
-            .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
-            .with_inserted_attribute(Mesh::ATTRIBUTE_UV_0, uvs)
-    }
 }

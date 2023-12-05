@@ -10,7 +10,7 @@ use crate::Cheese;
 pub struct PlayerCamera;
 
 impl PlayerCamera {
-    const RIG_Z_OFFSET: f32 = 3.;
+    const RIG_Z_OFFSET: f32 = -3.;
     const RIG_Y_OFFSET: f32 = 5.;
 
     fn bundle(cheese_transform: &Transform) -> impl Bundle {
@@ -21,10 +21,10 @@ impl PlayerCamera {
             PlayerCamera,
             dolly::Rig::builder()
                 .with(Position::new(cheese_transform.translation))
-                .with(Smooth::new_position(1.))
+                .with(Smooth::new_position(2.))
                 .with(Arm::new(camera_offset))
-                .with(Smooth::new_rotation(1.))
                 .with(LookAt::new(target))
+                .with(Smooth::new_rotation(5.))
                 .build(),
             Camera3dBundle {
                 transform: Transform::from_translation(camera_translation)

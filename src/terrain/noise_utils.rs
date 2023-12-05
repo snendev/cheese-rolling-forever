@@ -2,7 +2,7 @@ use noise::{Billow, Blend, Fbm, MultiFractal, NoiseFn, Perlin, RidgedMulti};
 
 const SEED: u32 = 54321;
 
-pub(super) fn generate_terrain_noise() -> impl NoiseFn<f64, 2> {
+pub fn generate_terrain_noise() -> impl NoiseFn<f64, 2> {
     Billow::<Perlin>::new(SEED + 60)
         // .set_frequency(1663.0)
         // .set_persistence(0.5)

@@ -9,7 +9,7 @@ impl Cheese {
     // estimates at the size of the cheese wheel taken from
     // https://www.houseofcheese.co.uk/acatalog/A-Whole-Double-Gloucester-Cheese-25cm-dia-2310.html
     // 6cm height
-    const HEIGHT: f32 = 0.08;
+    const HEIGHT: f32 = 0.1;
     // 12.5cm rad
     const RADIUS: f32 = 0.125;
 
@@ -35,7 +35,7 @@ impl Cheese {
             RigidBody::Dynamic,
             Self::collider(),
             ColliderDensity(1000.),
-            Restitution::new(0.1),
+            Restitution::new(0.01),
             LinearDamping(0.2),
             AngularDamping(0.4),
             PbrBundle {
