@@ -123,6 +123,7 @@ impl TerrainMeshBuilder {
                     (z as f32) * self.quad_size.y - self.quad_size.y * 0.5,
                 ]);
                 normals.push(Vec3::Y.to_array());
+                // TODO: offsets for less repetitive uv?
                 uvs.push([
                     tx,
                     (z as u32 % self.vertices_per_row) as f32 / self.vertices_per_row as f32,

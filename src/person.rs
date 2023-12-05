@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 
+// TODO build a lakitu
+
 #[derive(Clone, Copy)]
 #[derive(Component)]
 pub struct Person {

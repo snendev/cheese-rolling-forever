@@ -36,6 +36,7 @@ impl Cheese {
             Self::collider(),
             ColliderDensity(1000.),
             Restitution::new(0.01),
+            Friction::new(0.9),
             LinearDamping(0.2),
             AngularDamping(0.4),
             PbrBundle {

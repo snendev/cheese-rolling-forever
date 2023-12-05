@@ -19,14 +19,14 @@ fn spawn_ragdolls(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    for x in -9..=9 {
-        for y in -9..=9 {
-            // Person::default().spawn_ragdoll(
-            //     Vec3::new(x as f32, 5. + (2. * y as f32), -8. + (-2. * y as f32)),
-            //     &mut commands,
-            //     &mut meshes,
-            //     &mut materials,
-            // );
+    for x in -4..=4 {
+        for y in -4..=4 {
+            Person::default().spawn_ragdoll(
+                Vec3::new(x as f32, 5. + (3. * y as f32), -8. + (-3. * y as f32)),
+                &mut commands,
+                &mut meshes,
+                &mut materials,
+            );
         }
     }
 }
