@@ -81,6 +81,7 @@ pub(crate) fn update_terrain_mesh(
     terrain.extend(20);
     *mesh = terrain.generate_mesh(&terrain.generate_noise());
 
+    info!("Update");
     for entity in spatial_query.shape_intersections(
         &Collider::trimesh_from_mesh(&mesh).unwrap(),
         Vec3::ZERO,

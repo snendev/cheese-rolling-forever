@@ -9,9 +9,9 @@ impl Cheese {
     // estimates at the size of the cheese wheel taken from
     // https://www.houseofcheese.co.uk/acatalog/A-Whole-Double-Gloucester-Cheese-25cm-dia-2310.html
     // 6cm height
-    const HEIGHT: f32 = 0.1;
+    const HEIGHT: f32 = 0.4;
     // 12.5cm rad
-    const RADIUS: f32 = 0.125;
+    const RADIUS: f32 = 1.;
 
     pub fn collider() -> Collider {
         Collider::cylinder(Self::HEIGHT, Self::RADIUS)
@@ -34,11 +34,15 @@ impl Cheese {
             Name::new("Cheese"),
             RigidBody::Dynamic,
             Self::collider(),
-            ColliderDensity(5000.),
-            Restitution::new(0.001),
-            Friction::new(0.9),
-            LinearDamping(0.2),
-            AngularDamping(0.2),
+            ColliderDensity(100.),
+            Restitution {
+                coefficient: 0.0001,
+                combine_rule: CoefficientCombine::Min,
+            },
+            Friction::new(0.5),
+            LinearDamping(0.),
+            AngularDamping(0.1),
+            Dominance(1),
             PbrBundle {
                 mesh: meshes.add(Self::shape().into()),
                 material: materials.add(Color::rgb(1., 0.98, 0.8).into()),
