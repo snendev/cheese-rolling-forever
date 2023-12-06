@@ -3,11 +3,9 @@
 
 use noise::{Billow, Blend, Fbm, MultiFractal, NoiseFn, Perlin, RidgedMulti, ScaleBias};
 
-const SEED: u32 = 54321;
-
-pub fn generate_terrain_noise() -> impl NoiseFn<f64, 2> {
+pub fn generate_terrain_noise(seed: u32) -> impl NoiseFn<f64, 2> {
     let hilly_billow = ScaleBias::new(
-        Billow::<Perlin>::new(SEED + 60)
+        Billow::<Perlin>::new(seed)
             .set_frequency(0.008)
             .set_persistence(0.5)
             .set_lacunarity(2.162109375)
@@ -15,7 +13,7 @@ pub fn generate_terrain_noise() -> impl NoiseFn<f64, 2> {
     )
     .set_scale(3.0);
     let hilly_ridged_multi = ScaleBias::new(
-        RidgedMulti::<Perlin>::new(SEED + 61)
+        RidgedMulti::<Perlin>::new(seed + 17)
             .set_frequency(2.0)
             .set_lacunarity(2.162109375)
             .set_octaves(1),
@@ -24,6 +22,6 @@ pub fn generate_terrain_noise() -> impl NoiseFn<f64, 2> {
     Blend::new(
         hilly_billow,
         hilly_ridged_multi,
-        Fbm::<Perlin>::new(SEED + 2).set_frequency(0.001),
+        Fbm::<Perlin>::new(seed + 19).set_frequency(0.001),
     )
 }

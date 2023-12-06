@@ -2,14 +2,14 @@ use bevy::{pbr::wireframe::WireframePlugin, prelude::*};
 
 use bevy_geppetto::Test;
 
-use bevy_xpbd_3d::plugins::{PhysicsDebugPlugin, PhysicsPlugins};
+use bevy_xpbd_3d::plugins::PhysicsDebugPlugin;
 
-use cheese::RaceScenePlugin;
+use cheese::{CheeseGamePlugin, RaceScenePlugin};
 
 fn main() {
     Test::new("Terrain alone".to_string(), |app| {
         app.add_plugins((
-            PhysicsPlugins::default(),
+            CheeseGamePlugin,
             RaceScenePlugin,
             PhysicsDebugPlugin::default(),
             WireframePlugin::default(),

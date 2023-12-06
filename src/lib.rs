@@ -49,7 +49,11 @@ impl Plugin for RaceScenePlugin {
                     ..Default::default()
                 });
                 commands.spawn(Cheese::bundle(&mut meshes, &mut materials));
-                commands.spawn(Terrain::bundle(&mut meshes, &mut materials, &mut images));
+                commands.spawn(Terrain::new(200).to_bundle(
+                    &mut meshes,
+                    &mut materials,
+                    &mut images,
+                ));
             },
         );
     }

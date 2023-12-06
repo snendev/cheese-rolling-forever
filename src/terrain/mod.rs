@@ -18,26 +18,44 @@ pub struct Terrain {
     pub mesh_builder: TerrainMeshBuilder,
     // the index of the maximum row currently rendered
     pub extents: (usize, usize),
+    pub noise_seed: u32,
 }
 
 impl Terrain {
-    pub fn new(extents: (usize, usize)) -> Self {
+    pub fn new(start_length: usize) -> Self {
         Self {
             mesh_builder: TerrainMeshBuilder::default(),
-            extents,
+            extents: (0, start_length),
+            noise_seed: 0,
         }
     }
 
-    pub fn bundle(
+    pub fn with_seed(mut self, seed: u32) -> Self {
+        self.noise_seed = seed;
+        self
+    }
+
+    pub fn to_bundle(
+        self,
         meshes: &mut Assets<Mesh>,
         materials: &mut Assets<StandardMaterial>,
         images: &mut Assets<Image>,
     ) -> impl Bundle {
-        let terrain = Terrain::new((0, 200));
-        let noise = generate_terrain_noise();
-        let mesh = terrain.generate_mesh(&noise);
+        let noise = self.generate_noise();
+        Self::to_bundle_with_noise(self, &noise, meshes, materials, images)
+    }
+
+    // N.B. this does not help when regenerating terrain with non-default noise
+    pub fn to_bundle_with_noise(
+        self,
+        noise: &impl NoiseFn<f64, 2>,
+        meshes: &mut Assets<Mesh>,
+        materials: &mut Assets<StandardMaterial>,
+        images: &mut Assets<Image>,
+    ) -> impl Bundle {
+        let mesh = self.generate_mesh(noise);
         (
-            terrain,
+            self,
             Name::new("Terrain"),
             RigidBody::Static,
             AsyncCollider(ComputedCollider::TriMesh),
@@ -52,6 +70,10 @@ impl Terrain {
                 ..Default::default()
             },
         )
+    }
+
+    pub fn generate_noise(&self) -> impl NoiseFn<f64, 2> {
+        generate_terrain_noise(self.noise_seed)
     }
 
     pub fn extend(&mut self, rows_to_extend: usize) {
