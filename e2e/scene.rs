@@ -25,11 +25,11 @@ fn spawn_ragdolls(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     for x in -3..=3 {
-        Person::default().spawn_ragdoll(
-            Vec3::new(x as f32, 10., -8.),
-            &mut commands,
-            &mut meshes,
-            &mut materials,
-        );
+        // Person::default().spawn_ragdoll(
+        //     Vec3::new(x as f32, 10., -8.),
+        //     &mut commands,
+        //     &mut meshes,
+        //     &mut materials,
+        // );
     }
 }

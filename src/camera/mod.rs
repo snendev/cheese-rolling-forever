@@ -10,8 +10,8 @@ use crate::Cheese;
 pub struct PlayerCamera;
 
 impl PlayerCamera {
-    const RIG_Z_OFFSET: f32 = -3.;
-    const RIG_Y_OFFSET: f32 = 5.;
+    const RIG_Y_OFFSET: f32 = 1.5;
+    const RIG_Z_OFFSET: f32 = 5.;
 
     fn bundle(cheese_transform: &Transform) -> impl Bundle {
         let camera_offset = Vec3::new(0., Self::RIG_Y_OFFSET, Self::RIG_Z_OFFSET);

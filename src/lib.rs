@@ -19,14 +19,16 @@ pub struct CheeseGamePlugin;
 
 impl Plugin for CheeseGamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(PhysicsPlugins::default()).add_systems(
-            Update,
-            (
-                systems::handle_inputs,
-                systems::chase_cheese,
-                systems::update_terrain_mesh,
-            ),
-        );
+        app.add_plugins(PhysicsPlugins::default())
+            .insert_resource(Gravity(Vec3::new(0., 1., 1.).normalize() * -9.81))
+            .add_systems(
+                Update,
+                (
+                    systems::handle_inputs,
+                    systems::chase_cheese,
+                    systems::update_terrain_mesh,
+                ),
+            );
     }
 }
 

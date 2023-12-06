@@ -66,7 +66,7 @@ impl Terrain {
                     ..default()
                 }),
                 transform: Transform::default()
-                    .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_4)),
+                    .with_rotation(Quat::from_rotation_y(std::f32::consts::PI)),
                 ..Default::default()
             },
         )
@@ -99,7 +99,7 @@ pub struct TerrainMeshBuilder {
 
 impl Default for TerrainMeshBuilder {
     fn default() -> Self {
-        TerrainMeshBuilder::new(Vec2::ONE * 2., 128)
+        TerrainMeshBuilder::new(Vec2::ONE * 2., 64)
     }
 }
 
