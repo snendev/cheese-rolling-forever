@@ -21,7 +21,7 @@ fn main() {
 
 fn spawn_scene(mut commands: Commands) {
     commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(0., 50., 3.).looking_at(Vec3::ZERO, Vec3::Y),
+        transform: Transform::from_xyz(0., 50., -3.).looking_at(Vec3::ZERO, Vec3::Y),
         ..Default::default()
     });
 }
