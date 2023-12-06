@@ -58,31 +58,43 @@ pub(crate) fn update_terrain_mesh(
     mut commands: Commands,
     mut terrain_query: Query<(Entity, &mut Terrain, &Handle<Mesh>)>,
     cheese_query: Query<&Transform, With<Cheese>>,
+    spatial_query: SpatialQuery,
     mut assets: ResMut<Assets<Mesh>>,
 ) {
-    for (entity, mut terrain, handle) in terrain_query.iter_mut() {
-        let Ok(cheese_transform) = cheese_query.get_single() else {
-            continue;
-        };
-        let farthest_row_z = terrain.mesh_builder.quad_size.y * terrain.extents.1 as f32;
-        let trigger_planar_distance = terrain.mesh_builder.quad_size.y * 180.;
+    let Ok((entity, mut terrain, handle)) = terrain_query.get_single_mut() else {
+        return;
+    };
+    let Ok(cheese_transform) = cheese_query.get_single() else {
+        return;
+    };
+    let Some(mesh) = assets.get_mut(handle.id()) else {
+        return;
+    };
 
-        if (farthest_row_z - cheese_transform.translation.z).abs() >= trigger_planar_distance {
-            continue;
-        }
+    let farthest_row_z = terrain.mesh_builder.quad_size.y * terrain.extents.1 as f32;
+    let trigger_planar_distance = terrain.mesh_builder.quad_size.y * 180.;
 
-        let Some(mesh) = assets.get_mut(handle.id()) else {
-            continue;
-        };
-        terrain.extend(20);
-        *mesh = terrain.generate_mesh(&terrain.generate_noise());
-
-        // counts of the number of vertices and indices to remove
-        commands
-            .entity(entity)
-            .remove::<Collider>()
-            .insert(AsyncCollider(ComputedCollider::TriMesh));
+    if (farthest_row_z - cheese_transform.translation.z).abs() >= trigger_planar_distance {
+        return;
     }
+
+    terrain.extend(20);
+    *mesh = terrain.generate_mesh(&terrain.generate_noise());
+
+    for entity in spatial_query.shape_intersections(
+        &Collider::trimesh_from_mesh(&mesh).unwrap(),
+        Vec3::ZERO,
+        Quat::default(),
+        SpatialQueryFilter::default(),
+    ) {
+        info!("{:?}", entity);
+    }
+
+    // counts of the number of vertices and indices to remove
+    commands
+        .entity(entity)
+        .remove::<Collider>()
+        .insert(AsyncCollider(ComputedCollider::TriMesh));
 }
 
 // pub(crate) fn lakitu_system(

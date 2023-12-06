@@ -82,17 +82,8 @@ impl Terrain {
     }
 
     pub fn generate_mesh(&self, noise: &impl NoiseFn<f64, 2>) -> Mesh {
-        let chunk = self.mesh_builder.generate_chunk(
-            noise,
-            self.extents.1 - self.extents.0,
-            self.extents.0,
-        );
-
-        Mesh::new(PrimitiveTopology::TriangleList)
-            .with_indices(Some(Indices::U32(chunk.indices)))
-            .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, chunk.positions)
-            .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, chunk.normals)
-            .with_inserted_attribute(Mesh::ATTRIBUTE_UV_0, chunk.uvs)
+        self.mesh_builder
+            .generate_mesh(noise, self.extents.1 - self.extents.0, self.extents.0)
     }
 }
 
@@ -108,7 +99,7 @@ pub struct TerrainMeshBuilder {
 
 impl Default for TerrainMeshBuilder {
     fn default() -> Self {
-        TerrainMeshBuilder::new(Vec2::ONE * 2., 16)
+        TerrainMeshBuilder::new(Vec2::ONE * 2., 128)
     }
 }
 
@@ -120,12 +111,12 @@ impl TerrainMeshBuilder {
         }
     }
 
-    pub fn generate_chunk(
+    pub fn generate_mesh(
         &self,
         noise: &impl NoiseFn<f64, 2>,
         chunk_size: usize,
         start_index: usize,
-    ) -> TerrainMeshChunk {
+    ) -> Mesh {
         let mut positions: Vec<[f32; 3]> =
             Vec::with_capacity(chunk_size * self.vertices_per_row as usize);
         let mut normals: Vec<[f32; 3]> =
@@ -168,22 +159,12 @@ impl TerrainMeshBuilder {
             }
         }
 
-        TerrainMeshChunk {
-            positions,
-            normals,
-            uvs,
-            indices,
-        }
+        Mesh::new(PrimitiveTopology::TriangleList)
+            .with_indices(Some(Indices::U32(indices)))
+            .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, positions)
+            .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
+            .with_inserted_attribute(Mesh::ATTRIBUTE_UV_0, uvs)
     }
-}
-
-// A chunk extends the terrain exactly one quad further, aka one "row" of vertices
-#[derive(Debug)]
-pub struct TerrainMeshChunk {
-    pub positions: Vec<[f32; 3]>,
-    pub normals: Vec<[f32; 3]>,
-    pub uvs: Vec<[f32; 2]>,
-    pub indices: Vec<u32>,
 }
 
 /// Creates a colorful test pattern
