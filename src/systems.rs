@@ -12,12 +12,12 @@ pub(crate) fn chase_cheese(
     let Ok(cheese_transform) = cheese_query.get_single() else {
         return;
     };
-    for (transform, mut force) in arm_query.iter_mut() {
+    arm_query.par_iter_mut().for_each(|(transform, mut force)| {
         // each tick arms receive a magnetic impulse towards the cheese
         let delta = cheese_transform.translation - transform.translation;
         // N.B. this overwrites
         force.set_impulse(CHEESE_PULL_STRENGTH * delta / delta.length_squared());
-    }
+    });
 }
 
 pub(crate) fn handle_inputs(
