@@ -126,7 +126,7 @@ impl TerrainMeshBuilder {
             Vec::with_capacity(((chunk_size - 1) * (self.vertices_per_row - 1) * 6) as usize);
 
         const NUM_FLAT_ROWS: u32 = 25;
-        const NUM_SMOOTHED_ROWS: u32 = 15;
+        const NUM_SMOOTHED_ROWS: u32 = 4;
         let slope = Quat::from_rotation_x(std::f32::consts::FRAC_PI_4);
 
         for z in 0..chunk_size {
