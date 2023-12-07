@@ -17,12 +17,12 @@ pub use noise_utils::generate_terrain_noise;
 pub struct Terrain {
     pub mesh_builder: TerrainMeshBuilder,
     // the index of the maximum row currently rendered
-    pub extents: (usize, usize),
+    pub extents: (u32, u32),
     pub noise_seed: u32,
 }
 
 impl Terrain {
-    pub fn new(start_length: usize) -> Self {
+    pub fn new(start_length: u32) -> Self {
         Self {
             mesh_builder: TerrainMeshBuilder::default(),
             extents: (0, start_length),
@@ -65,8 +65,6 @@ impl Terrain {
                     base_color_texture: Some(images.add(uv_debug_texture())),
                     ..default()
                 }),
-                transform: Transform::default()
-                    .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_4)),
                 ..Default::default()
             },
         )
@@ -76,7 +74,7 @@ impl Terrain {
         generate_terrain_noise(self.noise_seed)
     }
 
-    pub fn extend(&mut self, rows_to_extend: usize) {
+    pub fn extend(&mut self, rows_to_extend: u32) {
         self.extents.0 += rows_to_extend;
         self.extents.1 += rows_to_extend;
     }
@@ -99,7 +97,7 @@ pub struct TerrainMeshBuilder {
 
 impl Default for TerrainMeshBuilder {
     fn default() -> Self {
-        TerrainMeshBuilder::new(Vec2::ONE * 2., 128)
+        TerrainMeshBuilder::new(Vec2::ONE * 2., 64)
     }
 }
 
@@ -114,39 +112,59 @@ impl TerrainMeshBuilder {
     pub fn generate_mesh(
         &self,
         noise: &impl NoiseFn<f64, 2>,
-        chunk_size: usize,
-        start_index: usize,
+        chunk_size: u32,
+        start_index: u32,
     ) -> Mesh {
         let mut positions: Vec<[f32; 3]> =
-            Vec::with_capacity(chunk_size * self.vertices_per_row as usize);
+            Vec::with_capacity((chunk_size * self.vertices_per_row) as usize);
         let mut normals: Vec<[f32; 3]> =
-            Vec::with_capacity(chunk_size * self.vertices_per_row as usize);
+            Vec::with_capacity((chunk_size * self.vertices_per_row) as usize);
         let mut uvs: Vec<[f32; 2]> =
-            Vec::with_capacity(chunk_size * self.vertices_per_row as usize);
+            Vec::with_capacity((chunk_size * self.vertices_per_row) as usize);
         // Each row is (M - 1) X (N-1) quads
         let mut indices: Vec<u32> =
-            Vec::with_capacity((chunk_size - 1) * (self.vertices_per_row as usize - 1) * 6);
+            Vec::with_capacity(((chunk_size - 1) * (self.vertices_per_row - 1) * 6) as usize);
 
-        for z in start_index..(start_index + chunk_size) {
+        const NUM_FLAT_ROWS: u32 = 25;
+        const NUM_SMOOTHED_ROWS: u32 = 15;
+        let slope = Quat::from_rotation_x(std::f32::consts::FRAC_PI_4);
+
+        for z in 0..chunk_size {
+            let total_z = start_index + z;
             for x in 0..self.vertices_per_row {
                 let tx = (x as f32) / (self.vertices_per_row - 1) as f32 - 0.5;
-                positions.push([
-                    tx * (self.vertices_per_row as f32) * self.quad_size.x,
-                    noise.get([x as f64, z as f64]) as f32,
-                    (z as f32) * self.quad_size.y - self.quad_size.y * 0.5,
-                ]);
-                normals.push(Vec3::Y.to_array());
+                let x_position = tx * (self.vertices_per_row as f32) * self.quad_size.x;
+                let z_position = (total_z as f32 - NUM_FLAT_ROWS as f32) * self.quad_size.y;
+
+                if total_z < NUM_FLAT_ROWS {
+                    positions.push([x_position, 0., z_position]);
+                    normals.push(Vec3::Y.to_array());
+                } else if total_z == NUM_FLAT_ROWS {
+                    positions.push([x_position, -0.5, z_position]);
+                    normals.push(Vec3::Y.to_array());
+                } else {
+                    let adjusted_z = total_z - NUM_FLAT_ROWS;
+                    let noise_sample = noise.get([x as f64, adjusted_z as f64]) as f32;
+                    let y_position = if adjusted_z < NUM_SMOOTHED_ROWS {
+                        noise_sample * adjusted_z as f32 / NUM_SMOOTHED_ROWS as f32
+                    } else {
+                        noise_sample
+                    };
+                    let unsloped_position = Vec3::new(x_position, y_position, z_position);
+                    let sloped_position = slope * unsloped_position;
+                    positions.push(sloped_position.to_array());
+                    normals.push(Vec3::new(0., 1., 1.).normalize().to_array());
+                }
                 // TODO: offsets for less repetitive uv?
                 uvs.push([
                     tx,
-                    (z as u32 % self.vertices_per_row) as f32 / self.vertices_per_row as f32,
+                    (total_z % self.vertices_per_row) as f32 / self.vertices_per_row as f32,
                 ]);
             }
 
-            let adjusted_z = z as u32 - start_index as u32;
-            if adjusted_z < chunk_size as u32 - 1 {
+            if z < chunk_size as u32 - 1 {
                 for x in 0..(self.vertices_per_row - 1) {
-                    let quad_index = self.vertices_per_row * adjusted_z + x;
+                    let quad_index = self.vertices_per_row * z + x;
                     // right triangle
                     indices.push(quad_index + self.vertices_per_row + 1);
                     indices.push(quad_index + 1);

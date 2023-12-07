@@ -11,7 +11,7 @@ impl Cheese {
     // 6cm height
     const HEIGHT: f32 = 0.4;
     // 12.5cm rad
-    const RADIUS: f32 = 1.;
+    const RADIUS: f32 = 0.6;
 
     pub fn collider() -> Collider {
         Collider::cylinder(Self::HEIGHT, Self::RADIUS)
@@ -46,7 +46,7 @@ impl Cheese {
             PbrBundle {
                 mesh: meshes.add(Self::shape().into()),
                 material: materials.add(Color::rgb(1., 0.98, 0.8).into()),
-                transform: Transform::from_translation(Vec3::Y * 2.)
+                transform: Transform::from_translation(Vec3::Y * Self::RADIUS + 0.01)
                     .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2)),
                 ..Default::default()
             },

@@ -22,6 +22,7 @@ impl Plugin for CheeseGamePlugin {
         app.add_plugins(PhysicsPlugins::default()).add_systems(
             Update,
             (
+                systems::start_race,
                 systems::handle_inputs,
                 systems::chase_cheese,
                 systems::update_terrain_mesh,

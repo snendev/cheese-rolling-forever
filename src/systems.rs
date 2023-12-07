@@ -3,6 +3,12 @@ use bevy_xpbd_3d::prelude::*;
 
 use crate::{Cheese, Hand, Terrain};
 
+pub(crate) fn start_race(mut cheese_query: Query<&mut ExternalImpulse, Added<Cheese>>) {
+    if let Ok(mut impulse) = cheese_query.get_single_mut() {
+        impulse.set_impulse(Vec3::Z * 20.);
+    }
+}
+
 // systems
 const CHEESE_PULL_STRENGTH: f32 = 10.0;
 pub(crate) fn chase_cheese(
@@ -81,7 +87,7 @@ pub(crate) fn update_terrain_mesh(
     terrain.extend(20);
     *mesh = terrain.generate_mesh(&terrain.generate_noise());
 
-    info!("Update");
+    info!("Updated mesh");
     for entity in spatial_query.shape_intersections(
         &Collider::trimesh_from_mesh(&mesh).unwrap(),
         Vec3::ZERO,

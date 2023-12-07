@@ -11,17 +11,18 @@ pub fn generate_terrain_noise(seed: u32) -> impl NoiseFn<f64, 2> {
             .set_lacunarity(2.162109375)
             .set_octaves(8),
     )
-    .set_scale(3.0);
+    .set_bias(1.0);
     let hilly_ridged_multi = ScaleBias::new(
         RidgedMulti::<Perlin>::new(seed + 17)
             .set_frequency(2.0)
             .set_lacunarity(2.162109375)
             .set_octaves(1),
     )
-    .set_scale(0.002);
-    Blend::new(
+    .set_bias(1.0);
+    ScaleBias::new(Blend::new(
         hilly_billow,
         hilly_ridged_multi,
         Fbm::<Perlin>::new(seed + 19).set_frequency(0.001),
-    )
+    ))
+    .set_scale(3.)
 }
