@@ -49,6 +49,11 @@ impl PlayerCamera {
     ) {
         for mut rig in rig_query.iter_mut() {
             let (target, _cheese) = cheese_query.single();
+            // if cheese goes into oblivion, at least don't make the camera follow it there
+            if !target.translation.is_finite() {
+                continue;
+            }
+
             rig.driver_mut::<Position>().position = target.translation;
             let target = target.translation;
             rig.driver_mut::<LookAt>().target = target;

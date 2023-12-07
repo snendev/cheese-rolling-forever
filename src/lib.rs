@@ -19,15 +19,8 @@ pub struct CheeseGamePlugin;
 
 impl Plugin for CheeseGamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(PhysicsPlugins::default()).add_systems(
-            Update,
-            (
-                systems::start_race,
-                systems::handle_inputs,
-                systems::chase_cheese,
-                systems::update_terrain_mesh,
-            ),
-        );
+        app.add_plugins(PhysicsPlugins::default())
+            .add_systems(Update, (systems::handle_inputs, systems::chase_cheese));
     }
 }
 
@@ -39,8 +32,7 @@ impl Plugin for RaceScenePlugin {
             Startup,
             |mut commands: Commands,
              mut meshes: ResMut<Assets<Mesh>>,
-             mut materials: ResMut<Assets<StandardMaterial>>,
-             mut images: ResMut<Assets<Image>>| {
+             mut materials: ResMut<Assets<StandardMaterial>>| {
                 commands.spawn(DirectionalLightBundle {
                     directional_light: DirectionalLight {
                         illuminance: 10.0e3,
@@ -50,11 +42,7 @@ impl Plugin for RaceScenePlugin {
                     ..Default::default()
                 });
                 commands.spawn(Cheese::bundle(&mut meshes, &mut materials));
-                commands.spawn(Terrain::new(200).to_bundle(
-                    &mut meshes,
-                    &mut materials,
-                    &mut images,
-                ));
+                commands.spawn(Terrain::new((10, 40)).to_bundle());
             },
         );
     }

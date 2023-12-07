@@ -1,13 +1,7 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 
-use crate::{Cheese, Hand, Terrain};
-
-pub(crate) fn start_race(mut cheese_query: Query<&mut ExternalImpulse, Added<Cheese>>) {
-    if let Ok(mut impulse) = cheese_query.get_single_mut() {
-        impulse.set_impulse(Vec3::Z * 20.);
-    }
-}
+use crate::{Cheese, Hand};
 
 // systems
 const CHEESE_PULL_STRENGTH: f32 = 10.0;
@@ -54,58 +48,10 @@ pub(crate) fn handle_inputs(
             // weight shift along velocity axis
             let spin_axis = velocity.0.normalize();
             let torque_impulse = influence * spin_axis;
-            angular_impulse.set_impulse(torque_impulse);
-            linear_impulse.set_impulse(spin_axis.cross(Vec3::Y) * influence * 100.);
+            if torque_impulse.is_finite() {
+                angular_impulse.set_impulse(torque_impulse);
+                linear_impulse.set_impulse(spin_axis.cross(Vec3::Y) * influence * 100.);
+            }
         }
     }
 }
-
-pub(crate) fn update_terrain_mesh(
-    mut commands: Commands,
-    mut terrain_query: Query<(Entity, &mut Terrain, &Handle<Mesh>)>,
-    cheese_query: Query<&Transform, With<Cheese>>,
-    spatial_query: SpatialQuery,
-    mut assets: ResMut<Assets<Mesh>>,
-) {
-    let Ok((entity, mut terrain, handle)) = terrain_query.get_single_mut() else {
-        return;
-    };
-    let Ok(cheese_transform) = cheese_query.get_single() else {
-        return;
-    };
-    let Some(mesh) = assets.get_mut(handle.id()) else {
-        return;
-    };
-
-    let farthest_row_z = terrain.mesh_builder.quad_size.y * terrain.extents.1 as f32;
-    let trigger_planar_distance = terrain.mesh_builder.quad_size.y * 180.;
-
-    if (farthest_row_z - cheese_transform.translation.z).abs() >= trigger_planar_distance {
-        return;
-    }
-
-    terrain.extend(20);
-    *mesh = terrain.generate_mesh(&terrain.generate_noise());
-
-    info!("Updated mesh");
-    for entity in spatial_query.shape_intersections(
-        &Collider::trimesh_from_mesh(&mesh).unwrap(),
-        Vec3::ZERO,
-        Quat::default(),
-        SpatialQueryFilter::default(),
-    ) {
-        info!("{:?}", entity);
-    }
-
-    // counts of the number of vertices and indices to remove
-    commands
-        .entity(entity)
-        .remove::<Collider>()
-        .insert(AsyncCollider(ComputedCollider::TriMesh));
-}
-
-// pub(crate) fn lakitu_system(
-//     mut person_query: Query<Person,
-// ) {
-
-// }

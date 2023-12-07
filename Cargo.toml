@@ -7,6 +7,7 @@ edition = "2021"
 bevy = "0.12.1"
 bevy_xpbd_3d = "0.3.2"
 dolly = "0.4.2"
+itertools = "0.12.0"
 noise = "0.8"
 rand = "0.8.5"
 
@@ -16,6 +17,11 @@ bevy_geppetto = { git = "https://github.com/snendev/bevy_geppetto" }
 [[test]]
 name = "cheese"
 path = "e2e/cheese.rs"
+harness = false
+
+[[test]]
+name = "chunk"
+path = "e2e/chunk.rs"
 harness = false
 
 [[test]]

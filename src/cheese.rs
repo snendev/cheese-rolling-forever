@@ -39,6 +39,7 @@ impl Cheese {
                 coefficient: 0.0001,
                 combine_rule: CoefficientCombine::Min,
             },
+            LinearVelocity(Vec3::Z * 5.),
             Friction::new(0.5),
             LinearDamping(0.),
             AngularDamping(0.1),
@@ -46,7 +47,7 @@ impl Cheese {
             PbrBundle {
                 mesh: meshes.add(Self::shape().into()),
                 material: materials.add(Color::rgb(1., 0.98, 0.8).into()),
-                transform: Transform::from_translation(Vec3::Y * Self::RADIUS + 0.01)
+                transform: Transform::from_translation(Vec3::Y * Self::RADIUS * 4.)
                     .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2)),
                 ..Default::default()
             },

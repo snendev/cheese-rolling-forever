@@ -1,9 +1,31 @@
-// code adapted from
-// https://github.com/Razaekel/noise-rs/blob/d79aa83cc5bab27ccab3c82cc9265add0bbeaa46/examples/complexplanet.rs
-
 use noise::{Billow, Blend, Fbm, MultiFractal, NoiseFn, Perlin, RidgedMulti, ScaleBias};
 
-pub fn generate_terrain_noise(seed: u32) -> impl NoiseFn<f64, 2> {
+use bevy::prelude::*;
+
+#[derive(Resource)]
+pub struct TerrainNoise(Box<dyn NoiseFn<f64, 2> + Send + Sync>);
+
+impl TerrainNoise {
+    pub fn new(seed: u32) -> Self {
+        Self::from_noise(generate_terrain_noise(seed))
+    }
+
+    pub fn from_noise(noise: impl NoiseFn<f64, 2> + Send + Sync + 'static) -> Self {
+        Self(Box::new(noise))
+    }
+
+    pub fn get(&self) -> &dyn NoiseFn<f64, 2> {
+        &self.0
+    }
+}
+
+impl Default for TerrainNoise {
+    fn default() -> Self {
+        Self::new(54321)
+    }
+}
+
+fn generate_terrain_noise(seed: u32) -> impl NoiseFn<f64, 2> {
     let hilly_billow = ScaleBias::new(
         Billow::<Perlin>::new(seed)
             .set_frequency(0.008)

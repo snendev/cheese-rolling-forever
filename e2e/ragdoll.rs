@@ -1,4 +1,4 @@
-use bevy::{ecs::schedule::ScheduleLabel, prelude::*};
+use bevy::prelude::*;
 
 use bevy_geppetto::Test;
 
@@ -9,9 +9,6 @@ use bevy_xpbd_3d::{
 };
 
 use cheese::{Cheese, CheeseGamePlugin, Person};
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, ScheduleLabel)]
-pub struct FakeSchedule;
 
 fn main() {
     Test::new("Ragdoll".to_string(), |app| {

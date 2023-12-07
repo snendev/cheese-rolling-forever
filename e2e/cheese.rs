@@ -4,7 +4,7 @@ use bevy_geppetto::Test;
 
 use bevy_xpbd_3d::plugins::PhysicsDebugPlugin;
 
-use cheese::{Cheese, CheeseGamePlugin, PlayerCameraPlugin, Terrain};
+use cheese::{Cheese, CheeseGamePlugin, PlayerCameraPlugin, Terrain, TerrainNoise, TerrainPlugin};
 
 fn main() {
     Test::new("Cheese controls".to_string(), |app| {
@@ -12,7 +12,9 @@ fn main() {
             PlayerCameraPlugin,
             CheeseGamePlugin,
             PhysicsDebugPlugin::default(),
+            TerrainPlugin::default(),
         ))
+        .insert_resource(TerrainNoise::from_noise(noise::Constant::new(0.)))
         .add_systems(Startup, handle_start);
     })
     .run();
@@ -22,7 +24,6 @@ fn handle_start(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut images: ResMut<Assets<Image>>,
 ) {
     commands.spawn(DirectionalLightBundle {
         directional_light: DirectionalLight {
@@ -34,10 +35,5 @@ fn handle_start(
     });
 
     commands.spawn(Cheese::bundle(&mut meshes, &mut materials));
-    commands.spawn(Terrain::new(100).to_bundle_with_noise(
-        &noise::Constant::new(0.),
-        &mut meshes,
-        &mut materials,
-        &mut images,
-    ));
+    commands.spawn(Terrain::new((40, 40)).to_bundle());
 }
