@@ -1,5 +1,8 @@
+use std::time::Duration;
+
 use bevy::{prelude::*, utils::HashSet};
 use bevy_xpbd_3d::prelude::*;
+use rand::Rng;
 
 use crate::{AppState, Cheese, Hand, Person};
 
@@ -71,6 +74,39 @@ pub(crate) fn handle_inputs(
     }
 }
 
+pub(crate) fn despawn_infinites(
+    mut commands: Commands,
+    query: Query<(
+        Entity,
+        &Transform,
+        &LinearVelocity,
+        &AngularVelocity,
+        Option<&Parent>,
+    )>,
+) {
+    let entities_to_remove = query
+        .iter()
+        .filter_map(|(entity, transform, linvel, angvel, parent)| {
+            if !transform.translation.is_finite()
+                || !transform.rotation.is_finite()
+                || !linvel.0.is_finite()
+                || !angvel.0.is_finite()
+            {
+                if let Some(parent) = parent {
+                    Some(parent.get())
+                } else {
+                    Some(entity)
+                }
+            } else {
+                None
+            }
+        })
+        .collect::<HashSet<Entity>>();
+    for entity in entities_to_remove {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
 // aka the "lakitu" system
 pub(crate) fn loop_ragdolls(
     mut ragdoll_query: Query<
@@ -106,36 +142,68 @@ pub(crate) fn loop_ragdolls(
     }
 }
 
-pub(crate) fn despawn_infinites(
+pub(crate) fn spawn_ragdolls(
     mut commands: Commands,
-    query: Query<(
-        Entity,
-        &Transform,
-        &LinearVelocity,
-        &AngularVelocity,
-        Option<&Parent>,
-    )>,
+    ragdoll_query: Query<(Entity, &Transform), With<Person>>,
+    cheese_query: Query<&Transform, (With<Cheese>, Without<Person>)>,
+    time: Res<Time>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut last_spawned_time: Local<Duration>,
 ) {
-    let entities_to_remove = query
-        .iter()
-        .filter_map(|(entity, transform, linvel, angvel, parent)| {
-            if !transform.translation.is_finite()
-                || !transform.rotation.is_finite()
-                || !linvel.0.is_finite()
-                || !angvel.0.is_finite()
-            {
-                if let Some(parent) = parent {
-                    Some(parent.get())
-                } else {
-                    Some(entity)
-                }
-            } else {
-                None
-            }
-        })
-        .collect::<HashSet<Entity>>();
-    for entity in entities_to_remove {
-        commands.entity(entity).despawn_recursive();
+    let Ok(cheese_transform) = cheese_query.get_single() else {
+        return;
+    };
+
+    // how many ragdolls to keep active
+    const MAX_JUGGLE_COUNT: usize = 50;
+    const NEAR_MAX_COUNT: usize = 35;
+    // use different spawn rates when near max and not
+    const LOW_COUNT_SPAWN_RATE: Duration = Duration::from_secs(2);
+    const HIGH_COUNT_SPAWN_RATE: Duration = Duration::from_secs(4);
+
+    let time_since_last_spawn = time.elapsed() - *last_spawned_time;
+    let num_ragdolls = ragdoll_query.iter().count();
+
+    let mut rng = rand::thread_rng();
+    let mut spawn_ragdoll = |index: Option<usize>| {
+        info!(
+            "Spawning!! time: {:?} since last spawn {:?}",
+            time.elapsed(),
+            time_since_last_spawn
+        );
+        let index = index.unwrap_or_else(|| rng.gen_range(0..5));
+        Person::new(
+            0.5 + rng.gen_range(1..=10) as f32 / 10.,
+            0.5 + rng.gen_range(1..=10) as f32 / 10.,
+        )
+        .spawn_ragdoll(
+            get_spawn_point(cheese_transform.translation, index, 0.),
+            &mut commands,
+            &mut meshes,
+            &mut materials,
+        );
+        *last_spawned_time = time.elapsed();
+    };
+
+    if num_ragdolls > MAX_JUGGLE_COUNT {
+        // must have goofed somewhere
+        // let ragdolls_to_delete = ragdoll_query.iter()
+        // commands.entity(entity).despawn();
+    } else if num_ragdolls == MAX_JUGGLE_COUNT {
+        // do nothing
+    } else if num_ragdolls > NEAR_MAX_COUNT {
+        // spawn ragdolls slowly
+        if time_since_last_spawn > HIGH_COUNT_SPAWN_RATE {
+            spawn_ragdoll(None)
+        }
+    } else {
+        // spawn bursts of ragdolls
+        if time_since_last_spawn > LOW_COUNT_SPAWN_RATE {
+            // for index in 0..5 {
+            spawn_ragdoll(None);
+            // }
+        }
     }
 }
 

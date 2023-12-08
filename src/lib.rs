@@ -45,6 +45,7 @@ impl Plugin for CheeseGamePlugin {
                     systems::handle_inputs,
                     systems::chase_cheese,
                     systems::detect_grab,
+                    systems::spawn_ragdolls,
                     systems::loop_ragdolls,
                     systems::despawn_infinites,
                 )
