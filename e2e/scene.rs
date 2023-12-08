@@ -31,6 +31,7 @@ fn spawn_ragdolls(
     for x in -3..=3 {
         Person::default().spawn_ragdoll(
             Vec3::new(x as f32, 10., -8.),
+            Vec3::ZERO,
             &mut commands,
             &mut meshes,
             &mut materials,

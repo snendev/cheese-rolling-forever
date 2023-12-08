@@ -145,13 +145,13 @@ pub(crate) fn loop_ragdolls(
 pub(crate) fn spawn_ragdolls(
     mut commands: Commands,
     ragdoll_query: Query<(Entity, &Transform), With<Person>>,
-    cheese_query: Query<&Transform, (With<Cheese>, Without<Person>)>,
+    cheese_query: Query<(&Transform, &LinearVelocity), (With<Cheese>, Without<Person>)>,
     time: Res<Time>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut last_spawned_time: Local<Duration>,
 ) {
-    let Ok(cheese_transform) = cheese_query.get_single() else {
+    let Ok((cheese_transform, cheese_velocity)) = cheese_query.get_single() else {
         return;
     };
 
@@ -179,6 +179,7 @@ pub(crate) fn spawn_ragdolls(
         )
         .spawn_ragdoll(
             get_spawn_point(cheese_transform.translation, index, 0.),
+            cheese_velocity.0,
             &mut commands,
             &mut meshes,
             &mut materials,

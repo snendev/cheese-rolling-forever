@@ -55,6 +55,7 @@ fn spawn_scene(
 
     Person::default().spawn_ragdoll(
         Vec3::new(3., 0., -3.),
+        Vec3::ZERO,
         &mut commands,
         &mut meshes,
         &mut materials,

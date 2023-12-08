@@ -43,6 +43,7 @@ fn handle_start(
     for (x, y) in (0..1).zip(0..1) {
         Person::default().spawn_ragdoll(
             Vec3::new(4. * x as f32, 5. + (4. * y as f32), -8. + (4. * y as f32)),
+            Vec3::ZERO,
             &mut commands,
             &mut meshes,
             &mut materials,

@@ -35,6 +35,7 @@ impl Person {
     pub fn spawn_ragdoll(
         self,
         origin: Vec3,
+        initial_velocity: Vec3,
         commands: &mut Commands,
         meshes: &mut Assets<Mesh>,
         materials: &mut Assets<StandardMaterial>,
@@ -234,7 +235,8 @@ impl Person {
                 RigidBody::Dynamic,
                 torso_collider,
                 ColliderDensity(Self::BODY_MASS_DENSITY),
-                GravityScale(1.5),
+                GravityScale(1.2),
+                LinearVelocity(initial_velocity),
                 PbrBundle {
                     mesh: meshes.add(torso_shape.into()),
                     material: materials.add(Color::RED.into()),
