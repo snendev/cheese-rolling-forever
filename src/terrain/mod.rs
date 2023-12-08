@@ -23,7 +23,7 @@ pub struct Terrain {
 
 impl Terrain {
     pub const DEFAULT_SEED: u32 = 54321;
-    const VISIBLE_CHUNKS_RANGE: (i32, i32) = (2, 3);
+    const VISIBLE_CHUNKS_RANGE: (i32, i32) = (3, 3);
 
     pub fn new(chunk_size: (u16, u16)) -> Self {
         Self {

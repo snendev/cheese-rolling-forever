@@ -12,11 +12,14 @@ use bevy_xpbd_3d::prelude::*;
 #[derive(Debug, Clone)]
 #[derive(Component)]
 pub struct TerrainChunk {
-    // the quad size of each rendered chunk of the mesh
-    pub quad_size: Vec2,
     // the number of vertices in each chunk
     pub chunk_size: (u16, u16),
+    // the origin in "vertex" coordinates of the chunk
     pub origin_vertex: (i32, i32),
+    // the quad size of each rendered chunk of the mesh
+    pub quad_size: Vec2,
+    // TODO: a scaling factor on quad_size which draws fewer triangles for farther away chunks
+    // pub lod_scale_factor: f32,
     pub noise_seed: u32,
 }
 
