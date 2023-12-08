@@ -23,7 +23,7 @@ fn spawn_ragdolls(
     for x in -2..=2 {
         for y in -2..=2 {
             Person::default().spawn_ragdoll(
-                Vec3::new(x as f32, 5. + (4. * y as f32), -8. + (4. * y as f32)),
+                Vec3::new(6. * x as f32, 5. + (4. * y as f32), 8. + (4. * y as f32)),
                 &mut commands,
                 &mut meshes,
                 &mut materials,

@@ -15,18 +15,20 @@ pub use terrain::*;
 
 mod systems;
 
-#[derive(Debug, Clone, Copy, PhysicsLayer)]
-pub enum GameCollisionLayer {
-    Bodies,
-    Ragdoll,
-}
-
 pub struct CheeseGamePlugin;
 
 impl Plugin for CheeseGamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(PhysicsPlugins::default())
-            .add_systems(Update, (systems::handle_inputs, systems::chase_cheese));
+        app.add_plugins(PhysicsPlugins::default()).add_systems(
+            Update,
+            (
+                systems::handle_inputs,
+                systems::chase_cheese,
+                systems::detect_grab,
+                systems::loop_ragdolls,
+                systems::despawn_infinites,
+            ),
+        );
     }
 }
 

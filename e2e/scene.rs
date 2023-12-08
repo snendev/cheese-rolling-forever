@@ -4,7 +4,9 @@ use bevy_geppetto::Test;
 
 use bevy_xpbd_3d::{components::ExternalImpulse, plugins::PhysicsDebugPlugin};
 
-use cheese::{Cheese, CheeseGamePlugin, PlayerCameraPlugin, RaceScenePlugin, TerrainPlugin};
+use cheese::{
+    Cheese, CheeseGamePlugin, Person, PlayerCameraPlugin, RaceScenePlugin, TerrainPlugin,
+};
 
 fn main() {
     Test::new("Game scene".to_string(), |app| {
@@ -26,14 +28,14 @@ fn spawn_ragdolls(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // for x in -3..=3 {
-    //     Person::default().spawn_ragdoll(
-    //         Vec3::new(x as f32, 10., -8.),
-    //         &mut commands,
-    //         &mut meshes,
-    //         &mut materials,
-    //     );
-    // }
+    for x in -3..=3 {
+        Person::default().spawn_ragdoll(
+            Vec3::new(x as f32, 10., -8.),
+            &mut commands,
+            &mut meshes,
+            &mut materials,
+        );
+    }
 }
 
 pub(crate) fn go_forward_input(

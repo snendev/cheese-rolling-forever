@@ -20,8 +20,8 @@ path = "e2e/cheese.rs"
 harness = false
 
 [[test]]
-name = "chunk"
-path = "e2e/chunk.rs"
+name = "lakitu"
+path = "e2e/lakitu.rs"
 harness = false
 
 [[test]]

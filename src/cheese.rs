@@ -34,7 +34,7 @@ impl Cheese {
             Name::new("Cheese"),
             RigidBody::Dynamic,
             Self::collider(),
-            ColliderDensity(100.),
+            ColliderDensity(1000.),
             Restitution {
                 coefficient: 0.0001,
                 combine_rule: CoefficientCombine::Min,

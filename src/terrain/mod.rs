@@ -1,7 +1,6 @@
 use itertools::Itertools;
 
 use bevy::{prelude::*, utils::HashMap};
-use bevy_xpbd_3d::prelude::*;
 
 mod chunk;
 pub use chunk::*;
