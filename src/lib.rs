@@ -58,22 +58,23 @@ pub struct RaceScenePlugin;
 
 impl Plugin for RaceScenePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Startup,
-            |mut commands: Commands,
-             mut meshes: ResMut<Assets<Mesh>>,
-             mut materials: ResMut<Assets<StandardMaterial>>| {
-                commands.spawn(DirectionalLightBundle {
-                    directional_light: DirectionalLight {
-                        illuminance: 10.0e3,
-                        ..Default::default()
-                    },
-                    transform: Transform::from_xyz(2., 10., 5.).looking_at(Vec3::ZERO, Vec3::Y),
-                    ..Default::default()
-                });
-                commands.spawn(Cheese::bundle(&mut meshes, &mut materials));
-                commands.spawn(Terrain::new((10, 40)).to_bundle());
-            },
-        );
+        app.add_systems(Startup, spawn_scene);
     }
+}
+
+fn spawn_scene(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    commands.spawn(DirectionalLightBundle {
+        directional_light: DirectionalLight {
+            illuminance: 10.0e3,
+            ..Default::default()
+        },
+        transform: Transform::from_xyz(2., 10., 5.).looking_at(Vec3::ZERO, Vec3::Y),
+        ..Default::default()
+    });
+    commands.spawn(Cheese::bundle(&mut meshes, &mut materials));
+    commands.spawn(Terrain::new((10, 40)).to_bundle());
 }

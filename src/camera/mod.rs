@@ -1,7 +1,8 @@
 use bevy::prelude::*;
+use bevy_atmosphere::plugin::{AtmosphereCamera, AtmospherePlugin};
+use bevy_xpbd_3d::components::LinearVelocity;
 
 mod dolly;
-use bevy_xpbd_3d::components::LinearVelocity;
 use dolly::dolly::prelude::*;
 
 use crate::Cheese;
@@ -32,6 +33,7 @@ impl PlayerCamera {
                     .looking_at(target, Vec3::Y),
                 ..Default::default()
             },
+            AtmosphereCamera::default(),
         )
     }
 
@@ -95,7 +97,10 @@ pub struct PlayerCameraPlugin;
 impl Plugin for PlayerCameraPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<CameraDirection>()
-            .add_plugins(dolly::DollyPlugin::<PlayerCamera>::default())
+            .add_plugins((
+                dolly::DollyPlugin::<PlayerCamera>::default(),
+                AtmospherePlugin,
+            ))
             .add_systems(
                 Update,
                 (
