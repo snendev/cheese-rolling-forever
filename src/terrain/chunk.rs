@@ -9,6 +9,8 @@ use bevy::{
 };
 use bevy_xpbd_3d::prelude::*;
 
+use crate::GameCollisionLayer;
+
 #[derive(Debug, Clone)]
 #[derive(Component)]
 pub struct TerrainChunk {
@@ -140,6 +142,7 @@ impl TerrainChunk {
             RigidBody::Static,
             ColliderDensity(1e7),
             AsyncCollider(ComputedCollider::TriMesh),
+            CollisionLayers::new([GameCollisionLayer::Bodies], [GameCollisionLayer::Bodies]),
             PbrBundle {
                 mesh: meshes.add(mesh),
                 material: materials.add(StandardMaterial {

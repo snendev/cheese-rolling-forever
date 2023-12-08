@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 
+use crate::GameCollisionLayer;
+
 // TODO build a lakitu
 
 #[derive(Clone, Copy)]
@@ -98,6 +100,7 @@ impl Person {
                 Name::new("Head"),
                 RigidBody::Dynamic,
                 head_collider,
+                CollisionLayers::new([GameCollisionLayer::Ragdoll], [GameCollisionLayer::Ragdoll]),
                 ColliderDensity(Self::BODY_MASS_DENSITY),
                 PbrBundle {
                     mesh: meshes.add(head_shape.into()),
@@ -121,6 +124,7 @@ impl Person {
                 Name::new("Torso"),
                 RigidBody::Dynamic,
                 torso_collider,
+                CollisionLayers::new([GameCollisionLayer::Ragdoll], [GameCollisionLayer::Ragdoll]),
                 ColliderDensity(Self::BODY_MASS_DENSITY * 2.),
                 PbrBundle {
                     mesh: meshes.add(torso_shape.into()),
@@ -139,6 +143,7 @@ impl Person {
                 Name::new("Left Arm"),
                 RigidBody::Dynamic,
                 arm_collider.clone(),
+                CollisionLayers::new([GameCollisionLayer::Ragdoll], [GameCollisionLayer::Ragdoll]),
                 ColliderDensity(Self::LIMB_MASS_DENSITY),
                 PbrBundle {
                     mesh: meshes.add(arm_shape.into()),
@@ -161,6 +166,7 @@ impl Person {
                 Name::new("Right Arm"),
                 RigidBody::Dynamic,
                 arm_collider,
+                CollisionLayers::new([GameCollisionLayer::Ragdoll], [GameCollisionLayer::Ragdoll]),
                 ColliderDensity(Self::LIMB_MASS_DENSITY),
                 PbrBundle {
                     mesh: meshes.add(arm_shape.into()),
@@ -184,6 +190,7 @@ impl Person {
                 Name::new("Left Hand"),
                 RigidBody::Dynamic,
                 hand_collider.clone(),
+                CollisionLayers::new([GameCollisionLayer::Ragdoll], [GameCollisionLayer::Ragdoll]),
                 ColliderDensity(Self::LIMB_MASS_DENSITY),
                 PbrBundle {
                     mesh: meshes.add(hand_shape.into()),
@@ -206,6 +213,7 @@ impl Person {
                 Name::new("Right Hand"),
                 RigidBody::Dynamic,
                 hand_collider,
+                CollisionLayers::new([GameCollisionLayer::Ragdoll], [GameCollisionLayer::Ragdoll]),
                 ColliderDensity(Self::LIMB_MASS_DENSITY),
                 PbrBundle {
                     mesh: meshes.add(hand_shape.into()),
@@ -229,6 +237,7 @@ impl Person {
                 Name::new("Left Leg"),
                 RigidBody::Dynamic,
                 leg_collider.clone(),
+                CollisionLayers::new([GameCollisionLayer::Ragdoll], [GameCollisionLayer::Ragdoll]),
                 ColliderDensity(Self::LIMB_MASS_DENSITY),
                 PbrBundle {
                     mesh: meshes.add(leg_shape.into()),
@@ -251,6 +260,7 @@ impl Person {
                 Name::new("Right Leg"),
                 RigidBody::Dynamic,
                 leg_collider,
+                CollisionLayers::new([GameCollisionLayer::Ragdoll], [GameCollisionLayer::Ragdoll]),
                 ColliderDensity(Self::LIMB_MASS_DENSITY),
                 PbrBundle {
                     mesh: meshes.add(leg_shape.into()),
@@ -382,8 +392,17 @@ impl Person {
             ))
             .id();
 
+        let person_collider = Collider::capsule(torso_height, torso_radius);
+
         commands
-            .spawn((self, Name::new("Person"), SpatialBundle::default()))
+            .spawn((
+                self,
+                Name::new("Person"),
+                RigidBody::Dynamic,
+                person_collider,
+                CollisionLayers::new([GameCollisionLayer::Bodies], [GameCollisionLayer::Bodies]),
+                SpatialBundle::default(),
+            ))
             .add_child(head)
             .add_child(torso)
             .add_child(left_arm)

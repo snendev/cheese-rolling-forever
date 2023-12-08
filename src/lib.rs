@@ -15,6 +15,12 @@ pub use terrain::*;
 
 mod systems;
 
+#[derive(Debug, Clone, Copy, PhysicsLayer)]
+pub enum GameCollisionLayer {
+    Bodies,
+    Ragdoll,
+}
+
 pub struct CheeseGamePlugin;
 
 impl Plugin for CheeseGamePlugin {

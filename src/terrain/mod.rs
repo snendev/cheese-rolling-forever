@@ -41,7 +41,7 @@ impl Terrain {
     }
 
     pub fn to_bundle(self) -> impl Bundle {
-        (self, Name::new("Terrain"), RigidBody::Static)
+        (self, Name::new("Terrain"))
     }
 
     pub fn generate_chunk(
