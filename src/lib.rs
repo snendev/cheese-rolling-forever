@@ -15,20 +15,41 @@ pub use terrain::*;
 
 mod systems;
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, States)]
+pub enum AppState {
+    Menu,
+    Starting,
+    #[default]
+    Racing,
+    Closing,
+}
+
 pub struct CheeseGamePlugin;
 
 impl Plugin for CheeseGamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(PhysicsPlugins::default()).add_systems(
-            Update,
-            (
-                systems::handle_inputs,
-                systems::chase_cheese,
-                systems::detect_grab,
-                systems::loop_ragdolls,
-                systems::despawn_infinites,
-            ),
-        );
+        app.add_state::<AppState>()
+            .add_plugins(PhysicsPlugins::default())
+            .configure_sets(
+                PostUpdate,
+                (
+                    PhysicsSet::Prepare,
+                    PhysicsSet::StepSimulation,
+                    PhysicsSet::Sync,
+                )
+                    .run_if(in_state(AppState::Racing)),
+            )
+            .add_systems(
+                Update,
+                (
+                    systems::handle_inputs,
+                    systems::chase_cheese,
+                    systems::detect_grab,
+                    systems::loop_ragdolls,
+                    systems::despawn_infinites,
+                )
+                    .run_if(in_state(AppState::Racing)),
+            );
     }
 }
 

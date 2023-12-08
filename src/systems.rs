@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashSet};
 use bevy_xpbd_3d::prelude::*;
 
-use crate::{Cheese, Hand, Person};
+use crate::{AppState, Cheese, Hand, Person};
 
 // systems
 const CHEESE_PULL_STRENGTH: f32 = 10.0;
@@ -23,11 +23,13 @@ pub(crate) fn chase_cheese(
 pub(crate) fn detect_grab(
     hand_query: Query<&CollidingEntities, With<Hand>>,
     cheese_query: Query<&Cheese>,
+    mut state: ResMut<NextState<AppState>>,
 ) {
     for colliding_entities in hand_query.iter() {
         for entity in colliding_entities.0.iter() {
             if cheese_query.contains(*entity) {
                 info!("Caught the cheese!!!!");
+                state.set(AppState::Closing);
             }
         }
     }
