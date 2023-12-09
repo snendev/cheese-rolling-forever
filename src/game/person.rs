@@ -121,11 +121,11 @@ impl Person {
                 PbrBundle {
                     mesh: meshes.add(arm_shape.into()),
                     material: materials.add(Color::RED.into()),
-                    transform: Transform::from_translation(Vec3::new(
+                    transform: Transform::from_xyz(
                         -torso_radius - limb_radius * 2.,
                         torso_height / 2. - torso_radius * 0.4,
                         0.,
-                    )),
+                    ),
                     ..Default::default()
                 },
             ))
@@ -140,11 +140,11 @@ impl Person {
                 PbrBundle {
                     mesh: meshes.add(arm_shape.into()),
                     material: materials.add(Color::RED.into()),
-                    transform: Transform::from_translation(Vec3::new(
+                    transform: Transform::from_xyz(
                         torso_radius + limb_radius * 2.,
                         torso_height / 2. - torso_radius * 0.4,
                         0.,
-                    )),
+                    ),
                     ..Default::default()
                 },
             ))
@@ -160,11 +160,11 @@ impl Person {
                 PbrBundle {
                     mesh: meshes.add(hand_shape.into()),
                     material: materials.add(Color::RED.into()),
-                    transform: Transform::from_translation(Vec3::new(
+                    transform: Transform::from_xyz(
                         -torso_radius - arm_height - limb_radius * 2.,
                         torso_height / 2. - torso_radius * 0.4,
                         0.,
-                    )),
+                    ),
                     ..Default::default()
                 },
             ))
@@ -179,11 +179,11 @@ impl Person {
                 PbrBundle {
                     mesh: meshes.add(hand_shape.into()),
                     material: materials.add(Color::RED.into()),
-                    transform: Transform::from_translation(Vec3::new(
+                    transform: Transform::from_xyz(
                         torso_radius + arm_height + limb_radius * 2.,
                         torso_height / 2. - torso_radius * 0.4,
                         0.,
-                    )),
+                    ),
                     ..Default::default()
                 },
             ))
@@ -199,11 +199,11 @@ impl Person {
                 PbrBundle {
                     mesh: meshes.add(leg_shape.into()),
                     material: materials.add(Color::RED.into()),
-                    transform: Transform::from_translation(Vec3::new(
+                    transform: Transform::from_xyz(
                         -torso_radius + limb_radius * 0.8,
                         -torso_height / 2. - torso_radius - leg_total_height / 2.,
                         0.,
-                    )),
+                    ),
                     ..Default::default()
                 },
             ))
@@ -218,11 +218,11 @@ impl Person {
                 PbrBundle {
                     mesh: meshes.add(leg_shape.into()),
                     material: materials.add(Color::RED.into()),
-                    transform: Transform::from_translation(Vec3::new(
+                    transform: Transform::from_xyz(
                         torso_radius - limb_radius * 0.8,
                         -torso_height / 2. - torso_radius - leg_total_height / 2.,
                         0.,
-                    )),
+                    ),
                     ..Default::default()
                 },
             ))

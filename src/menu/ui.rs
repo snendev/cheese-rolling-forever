@@ -25,7 +25,7 @@ pub(super) fn handle_play(
         match interaction {
             Interaction::Pressed => {
                 bg_color.0 = PRESSED_BUTTON;
-                state.set(AppState::Starting);
+                state.set(AppState::SpawningScene);
             }
             Interaction::Hovered => {
                 bg_color.0 = HOVERED_BUTTON;

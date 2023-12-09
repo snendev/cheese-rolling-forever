@@ -20,7 +20,7 @@ fn main() {
         .add_systems(Startup, spawn_ragdolls)
         .add_systems(Update, go_forward_input)
         .add_systems(Startup, |mut state: ResMut<NextState<AppState>>| {
-            state.set(AppState::Starting);
+            state.set(AppState::SpawningScene);
         });
     })
     .run();

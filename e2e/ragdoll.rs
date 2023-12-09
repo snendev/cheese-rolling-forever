@@ -17,7 +17,7 @@ fn main() {
             .add_systems(Update, (handle_start, remove_gravity_scale))
             .add_systems(Startup, spawn_scene)
             .add_systems(Startup, |mut state: ResMut<NextState<AppState>>| {
-                state.set(AppState::Starting);
+                state.set(AppState::SpawningScene);
             });
     })
     .run();

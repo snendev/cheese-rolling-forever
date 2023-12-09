@@ -19,7 +19,7 @@ fn main() {
         .add_systems(Startup, spawn_scene)
         .add_systems(Update, move_cheese)
         .add_systems(Startup, |mut state: ResMut<NextState<AppState>>| {
-            state.set(AppState::Starting);
+            state.set(AppState::SpawningScene);
         });
     })
     .run();

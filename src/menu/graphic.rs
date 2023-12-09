@@ -38,8 +38,7 @@ pub(super) fn spawn_graphic(
                 Name::new("Spotlight Right"),
                 SpotLightBundle {
                     spot_light: spotlight.clone(),
-                    transform: Transform::from_translation(Vec3::new(2., 3., 2.))
-                        .looking_at(Vec3::ZERO, Vec3::Y),
+                    transform: Transform::from_xyz(2., 3., 2.).looking_at(Vec3::ZERO, Vec3::Y),
                     ..Default::default()
                 },
             ));
@@ -47,8 +46,7 @@ pub(super) fn spawn_graphic(
                 Name::new("Spotlight Left"),
                 SpotLightBundle {
                     spot_light: spotlight,
-                    transform: Transform::from_translation(Vec3::new(-2., 3., 2.))
-                        .looking_at(Vec3::ZERO, Vec3::Y),
+                    transform: Transform::from_xyz(-2., 3., 2.).looking_at(Vec3::ZERO, Vec3::Y),
                     ..Default::default()
                 },
             ));

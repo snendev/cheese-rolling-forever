@@ -44,8 +44,7 @@ fn spawn_menu_camera(mut commands: Commands) {
         Name::new("Menu Camera"),
         MenuCamera,
         Camera3dBundle {
-            transform: Transform::from_translation(Vec3::new(0., 5., 10.))
-                .looking_at(Vec3::ZERO, Vec3::Y),
+            transform: Transform::from_xyz(0., 5., 10.).looking_at(Vec3::ZERO, Vec3::Y),
             ..Default::default()
         },
     ));

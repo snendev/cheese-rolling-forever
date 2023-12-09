@@ -5,7 +5,7 @@ use bevy_xpbd_3d::components::LinearVelocity;
 mod dolly;
 use dolly::dolly::prelude::*;
 
-use crate::Cheese;
+use crate::{AppState, Cheese};
 
 #[derive(Clone, Copy, Debug, Default)]
 #[derive(Component)]
@@ -16,13 +16,13 @@ impl PlayerCamera {
     const RIG_Y_OFFSET: f32 = 4.;
     const CAM_OFFSET: Vec3 = Vec3::new(0., Self::RIG_Y_OFFSET, Self::RIG_Z_OFFSET);
 
-    fn bundle(cheese_transform: &Transform) -> impl Bundle {
-        let camera_translation = Self::CAM_OFFSET + cheese_transform.translation;
-        let target = cheese_transform.translation;
+    fn bundle(target_transform: &Transform) -> impl Bundle {
+        let camera_translation = Self::CAM_OFFSET + target_transform.translation;
+        let target = target_transform.translation;
         (
             PlayerCamera,
             dolly::Rig::builder()
-                .with(Position::new(cheese_transform.translation))
+                .with(Position::new(target_transform.translation))
                 .with(Smooth::new_position(1.))
                 .with(Arm::new(Self::CAM_OFFSET))
                 .with(LookAt::new(target))
@@ -35,15 +35,6 @@ impl PlayerCamera {
             },
             AtmosphereCamera::default(),
         )
-    }
-
-    fn spawn_for_added_cheese(
-        mut commands: Commands,
-        cheese_query: Query<&Transform, Added<Cheese>>,
-    ) {
-        if let Ok(transform) = cheese_query.get_single() {
-            commands.spawn(Self::bundle(transform));
-        }
     }
 
     fn track_cheese(
@@ -104,12 +95,14 @@ impl Plugin for PlayerCameraPlugin {
                 AtmospherePlugin,
             ))
             .add_systems(
+                OnEnter(AppState::SpawningScene),
+                |mut commands: Commands| {
+                    commands.spawn(PlayerCamera::bundle(&Transform::default()));
+                },
+            )
+            .add_systems(
                 Update,
-                (
-                    PlayerCamera::spawn_for_added_cheese,
-                    PlayerCamera::track_cheese,
-                    PlayerCamera::look_behind_input,
-                ),
+                (PlayerCamera::track_cheese, PlayerCamera::look_behind_input),
             );
     }
 }

@@ -10,7 +10,9 @@ pub use menu::*;
 pub enum AppState {
     #[default]
     Menu,
-    Starting,
+    SpawningScene,
+    FinishSpawningScene,
+    Countdown,
     Racing,
     Closing,
 }

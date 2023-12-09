@@ -9,7 +9,7 @@ fn main() {
             PlayerCameraPlugin,
             CheeseRacePlugin,
             RaceScenePlugin,
-            TerrainPlugin::default(),
+            TerrainPlugin::new(rand::random()),
             MenuPlugin,
         ))
         .run();
