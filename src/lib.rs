@@ -1,5 +1,8 @@
 use bevy::prelude::*;
 
+mod assets;
+pub use assets::*;
+
 mod game;
 pub use game::*;
 
@@ -9,6 +12,7 @@ pub use menu::*;
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, States)]
 pub enum AppState {
     #[default]
+    Loading,
     Menu,
     SpawningScene,
     Countdown,

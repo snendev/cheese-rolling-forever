@@ -4,7 +4,10 @@ use bevy_geppetto::Test;
 
 use bevy_xpbd_3d::plugins::PhysicsDebugPlugin;
 
-use cheese::{AppState, Cheese, CheeseRacePlugin, Person, Terrain, TerrainNoise, TerrainPlugin};
+use cheese::{
+    AppState, Cheese, CheeseAssetsPlugin, CheeseRacePlugin, Person, Terrain, TerrainNoise,
+    TerrainPlugin,
+};
 
 fn main() {
     Test::new("Cheese controls".to_string(), |app| {
@@ -12,12 +15,10 @@ fn main() {
             CheeseRacePlugin,
             PhysicsDebugPlugin::default(),
             TerrainPlugin::default(),
+            CheeseAssetsPlugin::new(AppState::SpawningScene),
         ))
         .insert_resource(TerrainNoise::from_noise(noise::Constant::new(0.)))
-        .add_systems(Startup, handle_start)
-        .add_systems(Startup, |mut state: ResMut<NextState<AppState>>| {
-            state.set(AppState::SpawningScene);
-        });
+        .add_systems(Startup, handle_start);
     })
     .run();
 }
@@ -41,7 +42,7 @@ fn handle_start(
         ..Default::default()
     });
 
-    commands.spawn(Terrain::new((40, 40)).to_bundle());
+    commands.spawn(Terrain::default().to_bundle());
 
     for (x, y) in (0..1).zip(0..1) {
         Person::default().spawn_ragdoll(

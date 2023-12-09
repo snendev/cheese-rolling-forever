@@ -4,7 +4,9 @@ use bevy_geppetto::Test;
 
 use bevy_xpbd_3d::{components::LinearVelocity, plugins::PhysicsDebugPlugin, resources::Gravity};
 
-use cheese::{AppState, Cheese, CheeseRacePlugin, RaceScenePlugin, TerrainPlugin};
+use cheese::{
+    AppState, Cheese, CheeseAssetsPlugin, CheeseRacePlugin, RaceScenePlugin, TerrainPlugin,
+};
 
 fn main() {
     Test::new("Terrain alone".to_string(), |app| {
@@ -14,13 +16,11 @@ fn main() {
             PhysicsDebugPlugin::default(),
             WireframePlugin::default(),
             TerrainPlugin::default(),
+            CheeseAssetsPlugin::new(AppState::SpawningScene),
         ))
         .insert_resource(Gravity(Vec3::ZERO))
         .add_systems(Startup, spawn_scene)
-        .add_systems(Update, move_cheese)
-        .add_systems(Startup, |mut state: ResMut<NextState<AppState>>| {
-            state.set(AppState::SpawningScene);
-        });
+        .add_systems(Update, move_cheese);
     })
     .run();
 }

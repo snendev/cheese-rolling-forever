@@ -36,7 +36,7 @@ fn spawn_scene(
         transform: Transform::from_xyz(2., 10., 5.).looking_at(Vec3::ZERO, Vec3::Y),
         ..Default::default()
     });
-    commands.spawn(Terrain::new((10, 40)).to_bundle());
+    commands.spawn(Terrain::default().to_bundle());
     commands.spawn((
         Name::new("Race Countdown Timer"),
         RaceCountdown(Timer::from_seconds(3., TimerMode::Once)),

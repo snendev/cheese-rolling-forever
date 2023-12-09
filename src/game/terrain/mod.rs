@@ -12,7 +12,9 @@ mod plugin;
 use ::noise::NoiseFn;
 pub use plugin::*;
 
-#[derive(Debug, Clone, Default)]
+use crate::TextureAssets;
+
+#[derive(Debug, Clone)]
 #[derive(Component)]
 pub struct Terrain {
     pub chunk_size: (u16, u16),
@@ -47,9 +49,9 @@ impl Terrain {
         &self,
         chunk_origin: (i32, i32),
         noise: &impl NoiseFn<f64, 2>,
+        textures: &TextureAssets,
         meshes: &mut Assets<Mesh>,
         materials: &mut Assets<StandardMaterial>,
-        images: &mut Assets<Image>,
     ) -> impl Bundle {
         TerrainChunk {
             quad_size: self.quad_size,
@@ -57,7 +59,7 @@ impl Terrain {
             origin_vertex: chunk_origin,
             noise_seed: self.noise_seed,
         }
-        .to_bundle(noise, meshes, materials, images)
+        .to_bundle(noise, textures, meshes, materials)
     }
 
     pub fn update(
@@ -65,9 +67,9 @@ impl Terrain {
         cheese_position: Vec3,
         noise: &impl NoiseFn<f64, 2>,
         commands: &mut Commands,
+        textures: &TextureAssets,
         meshes: &mut Assets<Mesh>,
         materials: &mut Assets<StandardMaterial>,
-        images: &mut Assets<Image>,
     ) {
         let cheese_nearest_vertex = Vec2::new(cheese_position.x, -cheese_position.z)
             / (self.quad_size * Vec2::new(self.chunk_size.0 as f32, self.chunk_size.1 as f32));
@@ -107,10 +109,16 @@ impl Terrain {
         // spawn missing in-bounds chunks
         for (x, y) in (left_edge..=right_edge).cartesian_product(backward_edge..=forward_edge) {
             if !self.rendered_chunks.contains_key(&(x, y)) {
-                let chunk_bundle = self.generate_chunk((x, y), noise, meshes, materials, images);
+                let chunk_bundle = self.generate_chunk((x, y), noise, &textures, meshes, materials);
                 let chunk_entity = commands.spawn(chunk_bundle).id();
                 self.rendered_chunks.insert((x, y), chunk_entity);
             }
         }
+    }
+}
+
+impl Default for Terrain {
+    fn default() -> Self {
+        Self::new((40, 40))
     }
 }

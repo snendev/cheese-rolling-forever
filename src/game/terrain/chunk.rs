@@ -2,12 +2,11 @@ use noise::NoiseFn;
 
 use bevy::{
     prelude::*,
-    render::{
-        mesh::Indices,
-        render_resource::{Extent3d, PrimitiveTopology, TextureDimension, TextureFormat},
-    },
+    render::{mesh::Indices, render_resource::PrimitiveTopology},
 };
 use bevy_xpbd_3d::prelude::*;
+
+use crate::TextureAssets;
 
 #[derive(Debug, Clone)]
 #[derive(Component)]
@@ -25,7 +24,7 @@ pub struct TerrainChunk {
 
 impl Default for TerrainChunk {
     fn default() -> Self {
-        TerrainChunk::new((0, 0), (50, 50), Vec2::ONE * 2., 0)
+        TerrainChunk::new((0, 0), (40, 40), Vec2::ONE * 2., 0)
     }
 }
 
@@ -58,8 +57,8 @@ impl TerrainChunk {
         // let total_z = self.origin_vertex.1 * self.chunk_size.1 as i32 + z;
         for z in 0..=self.chunk_size.1 as i32 {
             for x in 0..=self.chunk_size.0 as i32 {
-                let tx = x as f32 / self.chunk_size.0 as f32 - 0.5;
-                let x_position = tx * self.chunk_size.0 as f32 * self.quad_size.x;
+                let tx = x as f32 / self.chunk_size.0 as f32;
+                let x_position = (tx - 0.5) * self.chunk_size.0 as f32 * self.quad_size.x;
                 let z_position = z as f32 * self.quad_size.y;
 
                 let sample_x = (x + self.origin_vertex.0 * self.chunk_size.0 as i32) as f64;
@@ -125,9 +124,9 @@ impl TerrainChunk {
     pub fn to_bundle(
         self,
         noise: &impl NoiseFn<f64, 2>,
+        textures: &TextureAssets,
         meshes: &mut Assets<Mesh>,
         materials: &mut Assets<StandardMaterial>,
-        images: &mut Assets<Image>,
     ) -> impl Bundle {
         let mesh = self.generate_mesh(noise);
         let x = self.origin_vertex.0 as f32 * self.chunk_size.0 as f32 * self.quad_size.x;
@@ -146,8 +145,10 @@ impl TerrainChunk {
             PbrBundle {
                 mesh: meshes.add(mesh),
                 material: materials.add(StandardMaterial {
-                    base_color_texture: Some(images.add(uv_debug_texture())),
-                    ..default()
+                    base_color_texture: Some(textures.ground.clone()),
+                    depth_map: Some(textures.ground_displacement.clone()),
+                    normal_map_texture: Some(textures.ground_normal.clone()),
+                    ..Default::default()
                 }),
                 transform: Transform::from_xyz(x, y, z),
                 ..Default::default()
@@ -155,32 +156,4 @@ impl TerrainChunk {
             self,
         )
     }
-}
-
-/// Creates a colorful test pattern
-fn uv_debug_texture() -> Image {
-    const TEXTURE_SIZE: usize = 8;
-
-    let mut palette: [u8; 32] = [
-        255, 102, 159, 255, 255, 159, 102, 255, 236, 255, 102, 255, 121, 255, 102, 255, 102, 255,
-        198, 255, 102, 198, 255, 255, 121, 102, 255, 255, 236, 102, 255, 255,
-    ];
-
-    let mut texture_data = [0; TEXTURE_SIZE * TEXTURE_SIZE * 4];
-    for y in 0..TEXTURE_SIZE {
-        let offset = TEXTURE_SIZE * y * 4;
-        texture_data[offset..(offset + TEXTURE_SIZE * 4)].copy_from_slice(&palette);
-        palette.rotate_right(4);
-    }
-
-    Image::new_fill(
-        Extent3d {
-            width: TEXTURE_SIZE as u32,
-            height: TEXTURE_SIZE as u32,
-            depth_or_array_layers: 1,
-        },
-        TextureDimension::D2,
-        &texture_data,
-        TextureFormat::Rgba8UnormSrgb,
-    )
 }

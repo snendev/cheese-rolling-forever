@@ -12,21 +12,19 @@ pub struct MenuPlugin;
 
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
-        app
-            // ought to be OnEnter(AppState::Menu)..?
-            .add_systems(
-                Startup,
-                (spawn_menu_camera, spawn_start_menu, spawn_graphic),
-            )
-            .add_systems(
-                OnExit(AppState::Menu),
-                (
-                    despawn_all_recursive::<MenuCamera>,
-                    despawn_all_recursive::<MenuUI>,
-                    despawn_all_recursive::<MenuGraphic>,
-                ),
-            )
-            .add_systems(Update, (spin_graphic, handle_play));
+        app.add_systems(
+            OnEnter(AppState::Menu),
+            (spawn_menu_camera, spawn_start_menu, spawn_graphic),
+        )
+        .add_systems(
+            OnExit(AppState::Menu),
+            (
+                despawn_all_recursive::<MenuCamera>,
+                despawn_all_recursive::<MenuUI>,
+                despawn_all_recursive::<MenuGraphic>,
+            ),
+        )
+        .add_systems(Update, (spin_graphic, handle_play));
     }
 }
 

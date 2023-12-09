@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::TerrainNoise;
+use crate::{TerrainNoise, TextureAssets};
 
 mod systems;
 
@@ -18,6 +18,9 @@ impl TerrainPlugin {
 impl Plugin for TerrainPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(TerrainNoise::new(self.noise_seed))
-            .add_systems(Update, systems::update_terrain_mesh);
+            .add_systems(
+                Update,
+                systems::update_terrain_mesh.run_if(resource_exists::<TextureAssets>()),
+            );
     }
 }

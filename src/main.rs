@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use cheese::{CheeseRacePlugin, MenuPlugin, PlayerCameraPlugin, RaceScenePlugin, TerrainPlugin};
+use cheese::{
+    CheeseAssetsPlugin, CheeseRacePlugin, MenuPlugin, PlayerCameraPlugin, RaceScenePlugin,
+    TerrainPlugin,
+};
 
 fn main() {
     App::new()
@@ -9,6 +12,7 @@ fn main() {
             PlayerCameraPlugin,
             CheeseRacePlugin,
             RaceScenePlugin,
+            CheeseAssetsPlugin::default(),
             TerrainPlugin::new(rand::random()),
             MenuPlugin,
         ))
