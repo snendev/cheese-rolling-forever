@@ -11,7 +11,6 @@ pub enum AppState {
     #[default]
     Menu,
     SpawningScene,
-    FinishSpawningScene,
     Countdown,
     Racing,
     Closing,

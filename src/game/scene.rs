@@ -8,7 +8,10 @@ pub struct RaceScenePlugin;
 impl Plugin for RaceScenePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(AppState::SpawningScene), spawn_scene)
-            .add_systems(OnEnter(AppState::FinishSpawningScene), begin_countdown)
+            .add_systems(
+                Update,
+                begin_countdown.run_if(in_state(AppState::SpawningScene)),
+            )
             .add_systems(OnEnter(AppState::Countdown), ready_cheese)
             .add_systems(Update, countdown_race.run_if(in_state(AppState::Countdown)))
             .add_systems(OnEnter(AppState::Racing), yeet_cheese);
@@ -24,7 +27,6 @@ fn spawn_scene(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut state: ResMut<NextState<AppState>>,
 ) {
     commands.spawn(DirectionalLightBundle {
         directional_light: DirectionalLight {
@@ -37,19 +39,23 @@ fn spawn_scene(
     commands.spawn(Terrain::new((10, 40)).to_bundle());
     commands.spawn((
         Name::new("Race Countdown Timer"),
-        RaceCountdown(Timer::from_seconds(10., TimerMode::Once)),
+        RaceCountdown(Timer::from_seconds(3., TimerMode::Once)),
     ));
     commands.spawn(Cheese::bundle(
         Transform::from_xyz(0., 50., CHEESE_SPAWN_Z),
         &mut meshes,
         &mut materials,
     ));
-
-    state.set(AppState::FinishSpawningScene);
 }
 
-fn begin_countdown(mut state: ResMut<NextState<AppState>>) {
-    state.set(AppState::Countdown);
+fn begin_countdown(
+    query: Query<(&TerrainChunk, &Collider)>,
+    mut state: ResMut<NextState<AppState>>,
+) {
+    // once some terrain exists with a collider, switch states
+    if !query.is_empty() {
+        state.set(AppState::Countdown);
+    }
 }
 
 fn ready_cheese(
@@ -65,7 +71,7 @@ fn ready_cheese(
         // TODO maybe derive this from the Terrain's chunk_size and quad_size
         Vec3::new(0., 10., CHEESE_SPAWN_Z),
         Vec3::NEG_Y,
-        300.,
+        500.,
         false,
         SpatialQueryFilter::default(),
     ) {

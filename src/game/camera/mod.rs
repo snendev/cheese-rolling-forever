@@ -1,5 +1,10 @@
 use bevy::prelude::*;
-use bevy_atmosphere::plugin::{AtmosphereCamera, AtmospherePlugin};
+use bevy_atmosphere::{
+    collection::{gradient::Gradient, nishita::Nishita},
+    model::AtmosphereModel,
+    plugin::{AtmosphereCamera, AtmospherePlugin},
+    system_param::{Atmosphere, AtmosphereMut},
+};
 use bevy_xpbd_3d::components::LinearVelocity;
 
 mod dolly;
@@ -94,15 +99,20 @@ impl Plugin for PlayerCameraPlugin {
                 dolly::DollyPlugin::<PlayerCamera>::default(),
                 AtmospherePlugin,
             ))
-            .add_systems(
-                OnEnter(AppState::SpawningScene),
-                |mut commands: Commands| {
-                    commands.spawn(PlayerCamera::bundle(&Transform::default()));
-                },
-            )
+            .insert_resource(AtmosphereModel::new(Gradient {
+                sky: Color::rgb(0.27, 0.39, 0.48),
+                horizon: Color::rgb(0.29, 0.43, 0.53),
+                ground: Color::rgb(0.3, 0.5, 0.6),
+                ..Default::default()
+            }))
+            .add_systems(OnEnter(AppState::SpawningScene), spawn_camera)
             .add_systems(
                 Update,
                 (PlayerCamera::track_cheese, PlayerCamera::look_behind_input),
             );
     }
+}
+
+fn spawn_camera(mut commands: Commands) {
+    commands.spawn(PlayerCamera::bundle(&Transform::default()));
 }

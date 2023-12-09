@@ -33,11 +33,7 @@ impl Plugin for CheeseRacePlugin {
                     PhysicsSet::StepSimulation,
                     PhysicsSet::Sync,
                 )
-                    .run_if(
-                        in_state(AppState::Racing)
-                            .or_else(in_state(AppState::SpawningScene))
-                            .or_else(in_state(AppState::FinishSpawningScene)),
-                    ),
+                    .run_if(in_state(AppState::Racing).or_else(in_state(AppState::SpawningScene))),
             )
             .add_systems(
                 Update,
