@@ -5,14 +5,14 @@ use bevy_geppetto::Test;
 use bevy_xpbd_3d::{components::ExternalImpulse, plugins::PhysicsDebugPlugin};
 
 use cheese::{
-    AppState, Cheese, CheeseGamePlugin, Person, PlayerCameraPlugin, RaceScenePlugin, TerrainPlugin,
+    AppState, Cheese, CheeseRacePlugin, Person, PlayerCameraPlugin, RaceScenePlugin, TerrainPlugin,
 };
 
 fn main() {
     Test::new("Game scene".to_string(), |app| {
         app.add_plugins((
             PlayerCameraPlugin,
-            CheeseGamePlugin,
+            CheeseRacePlugin,
             TerrainPlugin::default(),
             RaceScenePlugin,
             PhysicsDebugPlugin::default(),

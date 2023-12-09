@@ -86,12 +86,12 @@ impl TerrainChunk {
                             .lerp(unsloped_position, chunk_z_ratio)
                             .to_array(),
                     );
-
                     normals.push(Vec3::Y.to_array());
                 } else {
                     positions.push(target_position.to_array());
                     normals.push(Vec3::Y.to_array());
                 }
+
                 // TODO: offsets for less repetitive uv?
                 uvs.push([
                     tx,

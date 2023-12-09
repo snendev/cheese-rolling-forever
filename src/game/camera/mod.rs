@@ -52,7 +52,9 @@ impl PlayerCamera {
         camera_direction: Res<CameraDirection>,
     ) {
         for mut rig in rig_query.iter_mut() {
-            let (target, velocity, _cheese) = cheese_query.single();
+            let Ok((target, velocity, _cheese)) = cheese_query.get_single() else {
+                continue;
+            };
             // if cheese goes into oblivion, at least don't make the camera follow it there
             if !target.translation.is_finite() {
                 continue;

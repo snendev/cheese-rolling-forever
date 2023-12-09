@@ -66,9 +66,12 @@ pub(crate) fn handle_inputs(
             // weight shift along velocity axis
             let spin_axis = velocity.0.normalize();
             let torque_impulse = influence * spin_axis;
+            let force_impulse = spin_axis.cross(Vec3::Y) * influence * 100.;
+            if force_impulse.is_finite() {
+                linear_impulse.set_impulse(force_impulse);
+            }
             if torque_impulse.is_finite() {
                 angular_impulse.set_impulse(torque_impulse);
-                linear_impulse.set_impulse(spin_axis.cross(Vec3::Y) * influence * 100.);
             }
         }
     }
@@ -113,9 +116,9 @@ pub(crate) fn loop_ragdolls(
         (&mut Transform, &mut LinearVelocity, &mut AngularVelocity),
         With<Person>,
     >,
-    cheese_query: Query<&Transform, (With<Cheese>, Without<Person>)>,
+    cheese_query: Query<(&Transform, &LinearVelocity), (With<Cheese>, Without<Person>)>,
 ) {
-    let Ok(cheese_transform) = cheese_query.get_single() else {
+    let Ok((cheese_transform, cheese_velocity)) = cheese_query.get_single() else {
         return;
     };
 
@@ -136,7 +139,7 @@ pub(crate) fn loop_ragdolls(
                 0.,
             ));
             count_looped_this_frame += 1;
-            *linvel = LinearVelocity::ZERO;
+            *linvel = cheese_velocity.0.into();
             *angvel = AngularVelocity::ZERO;
         }
     }

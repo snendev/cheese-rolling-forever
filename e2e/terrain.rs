@@ -4,12 +4,12 @@ use bevy_geppetto::Test;
 
 use bevy_xpbd_3d::{components::LinearVelocity, plugins::PhysicsDebugPlugin, resources::Gravity};
 
-use cheese::{AppState, Cheese, CheeseGamePlugin, RaceScenePlugin, TerrainPlugin};
+use cheese::{AppState, Cheese, CheeseRacePlugin, RaceScenePlugin, TerrainPlugin};
 
 fn main() {
     Test::new("Terrain alone".to_string(), |app| {
         app.add_plugins((
-            CheeseGamePlugin,
+            CheeseRacePlugin,
             RaceScenePlugin,
             PhysicsDebugPlugin::default(),
             WireframePlugin::default(),

@@ -4,12 +4,12 @@ use bevy_geppetto::Test;
 
 use bevy_xpbd_3d::plugins::PhysicsDebugPlugin;
 
-use cheese::{AppState, Cheese, CheeseGamePlugin, Person, Terrain, TerrainNoise, TerrainPlugin};
+use cheese::{AppState, Cheese, CheeseRacePlugin, Person, Terrain, TerrainNoise, TerrainPlugin};
 
 fn main() {
     Test::new("Cheese controls".to_string(), |app| {
         app.add_plugins((
-            CheeseGamePlugin,
+            CheeseRacePlugin,
             PhysicsDebugPlugin::default(),
             TerrainPlugin::default(),
         ))
