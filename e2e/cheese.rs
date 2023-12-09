@@ -34,6 +34,10 @@ fn handle_start(
         ..Default::default()
     });
 
-    commands.spawn(Cheese::bundle(&mut meshes, &mut materials));
+    commands.spawn(Cheese::bundle(
+        Cheese::default_transform(),
+        &mut meshes,
+        &mut materials,
+    ));
     commands.spawn(Terrain::new((40, 40)).to_bundle());
 }

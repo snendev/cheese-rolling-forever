@@ -61,5 +61,9 @@ fn spawn_scene(
         &mut materials,
     );
 
-    commands.spawn(Cheese::bundle(&mut meshes, &mut materials));
+    commands.spawn(Cheese::bundle(
+        Cheese::default_transform(),
+        &mut meshes,
+        &mut materials,
+    ));
 }

@@ -26,6 +26,11 @@ path = "e2e/lakitu.rs"
 harness = false
 
 [[test]]
+name = "menu"
+path = "e2e/menu.rs"
+harness = false
+
+[[test]]
 name = "ragdoll"
 path = "e2e/ragdoll.rs"
 harness = false
