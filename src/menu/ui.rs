@@ -130,7 +130,7 @@ fn play_button() -> ButtonBundle {
     }
 }
 
-fn audio_slider() -> NodeBundle {
+fn _audio_slider() -> NodeBundle {
     NodeBundle {
         ..Default::default()
     }

@@ -5,7 +5,7 @@ use bevy_geppetto::Test;
 use bevy_xpbd_3d::{components::ExternalImpulse, plugins::PhysicsDebugPlugin};
 
 use cheese::{
-    Cheese, CheeseGamePlugin, Person, PlayerCameraPlugin, RaceScenePlugin, TerrainPlugin,
+    AppState, Cheese, CheeseGamePlugin, Person, PlayerCameraPlugin, RaceScenePlugin, TerrainPlugin,
 };
 
 fn main() {
@@ -18,7 +18,10 @@ fn main() {
             PhysicsDebugPlugin::default(),
         ))
         .add_systems(Startup, spawn_ragdolls)
-        .add_systems(Update, go_forward_input);
+        .add_systems(Update, go_forward_input)
+        .add_systems(Startup, |mut state: ResMut<NextState<AppState>>| {
+            state.set(AppState::Starting);
+        });
     })
     .run();
 }

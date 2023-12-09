@@ -4,7 +4,7 @@ use bevy_geppetto::Test;
 
 use bevy_xpbd_3d::plugins::PhysicsDebugPlugin;
 
-use cheese::{Cheese, CheeseGamePlugin, Person, Terrain, TerrainNoise, TerrainPlugin};
+use cheese::{AppState, Cheese, CheeseGamePlugin, Person, Terrain, TerrainNoise, TerrainPlugin};
 
 fn main() {
     Test::new("Cheese controls".to_string(), |app| {
@@ -14,7 +14,10 @@ fn main() {
             TerrainPlugin::default(),
         ))
         .insert_resource(TerrainNoise::from_noise(noise::Constant::new(0.)))
-        .add_systems(Startup, handle_start);
+        .add_systems(Startup, handle_start)
+        .add_systems(Startup, |mut state: ResMut<NextState<AppState>>| {
+            state.set(AppState::Starting);
+        });
     })
     .run();
 }

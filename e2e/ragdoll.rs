@@ -8,14 +8,17 @@ use bevy_xpbd_3d::{
     resources::Gravity,
 };
 
-use cheese::{Cheese, CheeseGamePlugin, Person};
+use cheese::{AppState, Cheese, CheeseGamePlugin, Person};
 
 fn main() {
     Test::new("Ragdoll".to_string(), |app| {
         app.insert_resource(Gravity(Vec3::ZERO))
             .add_plugins((CheeseGamePlugin, PhysicsDebugPlugin::default()))
             .add_systems(Update, (handle_start, remove_gravity_scale))
-            .add_systems(Startup, spawn_scene);
+            .add_systems(Startup, spawn_scene)
+            .add_systems(Startup, |mut state: ResMut<NextState<AppState>>| {
+                state.set(AppState::Starting);
+            });
     })
     .run();
 }
