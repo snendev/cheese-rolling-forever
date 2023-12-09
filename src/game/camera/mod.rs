@@ -1,9 +1,8 @@
 use bevy::prelude::*;
 use bevy_atmosphere::{
-    collection::{gradient::Gradient, nishita::Nishita},
+    collection::gradient::Gradient,
     model::AtmosphereModel,
     plugin::{AtmosphereCamera, AtmospherePlugin},
-    system_param::{Atmosphere, AtmosphereMut},
 };
 use bevy_xpbd_3d::components::LinearVelocity;
 
