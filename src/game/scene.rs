@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 
-use crate::{AppState, Cheese, Terrain, TerrainChunk};
+use crate::{despawn_all_recursive, AppState, Cheese, Terrain, TerrainChunk};
 
 pub struct RaceScenePlugin;
 
@@ -12,8 +12,18 @@ impl Plugin for RaceScenePlugin {
                 Update,
                 begin_countdown.run_if(in_state(AppState::SpawningScene)),
             )
-            .add_systems(OnEnter(AppState::Countdown), ready_cheese)
-            .add_systems(Update, countdown_race.run_if(in_state(AppState::Countdown)))
+            .add_systems(
+                OnEnter(AppState::Countdown),
+                (ready_cheese, spawn_countdown_ui),
+            )
+            .add_systems(
+                Update,
+                (countdown_race, track_countdown_ui).run_if(in_state(AppState::Countdown)),
+            )
+            .add_systems(
+                OnExit(AppState::Countdown),
+                despawn_all_recursive::<CountdownUI>,
+            )
             .add_systems(OnEnter(AppState::Racing), yeet_cheese);
     }
 }
@@ -103,4 +113,56 @@ fn countdown_race(
 fn yeet_cheese(mut cheese_query: Query<&mut ExternalImpulse, With<Cheese>>) {
     let mut impulse = cheese_query.single_mut();
     impulse.set_impulse(Vec3::Z * 4.);
+}
+
+#[derive(Component)]
+struct CountdownUI;
+#[derive(Component)]
+struct CountdownUIText;
+
+fn spawn_countdown_ui(mut commands: Commands) {
+    commands
+        .spawn((
+            Name::new("Countdown UI"),
+            CountdownUI,
+            NodeBundle {
+                style: Style {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        ))
+        .with_children(|builder| {
+            builder.spawn((
+                CountdownUIText,
+                TextBundle::from_section(
+                    "3",
+                    TextStyle {
+                        font_size: 512.0,
+                        color: Color::rgb(0.02, 0.02, 0.1),
+                        ..Default::default()
+                    },
+                ),
+            ));
+        });
+}
+
+fn track_countdown_ui(
+    mut ui_query: Query<&mut Text, With<CountdownUIText>>,
+    countdown_query: Query<&RaceCountdown>,
+) {
+    let Ok(mut ui_text) = ui_query.get_single_mut() else {
+        return;
+    };
+    let Ok(countdown) = countdown_query.get_single() else {
+        return;
+    };
+    ui_text.sections[0].value = format!(
+        "{}",
+        (countdown.0.duration() - countdown.0.elapsed()).as_secs() + 1
+    );
 }

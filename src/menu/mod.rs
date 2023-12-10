@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::AppState;
+use crate::{despawn_all_recursive, AppState};
 
 mod graphic;
 use graphic::*;
@@ -25,12 +25,6 @@ impl Plugin for MenuPlugin {
             ),
         )
         .add_systems(Update, (spin_graphic, handle_play));
-    }
-}
-
-fn despawn_all_recursive<T: Component>(mut commands: Commands, query: Query<Entity, With<T>>) {
-    for entity in query.iter() {
-        commands.entity(entity).despawn_recursive();
     }
 }
 

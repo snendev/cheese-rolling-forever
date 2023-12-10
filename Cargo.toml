@@ -4,7 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = { version = "0.12.1", features = ["jpeg", "pbr_transmission_textures"] }
+bevy = { version = "0.12.1", features = [
+    "jpeg",
+    "pbr_transmission_textures",
+    "wav",
+] }
 bevy_asset_loader = { version = "0.18.0", features = ["3d"] }
 bevy_atmosphere = "0.8.1"
 bevy_xpbd_3d = "0.3.2"
