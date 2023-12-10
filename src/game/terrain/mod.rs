@@ -30,7 +30,7 @@ impl Terrain {
     pub fn new(chunk_size: (u16, u16)) -> Self {
         Self {
             chunk_size,
-            quad_size: Vec2::ONE * 2.,
+            quad_size: Vec2::ONE,
             noise_seed: Self::DEFAULT_SEED,
             rendered_chunks: HashMap::new(),
         }

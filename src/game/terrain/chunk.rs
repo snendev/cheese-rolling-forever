@@ -55,19 +55,16 @@ impl TerrainChunk {
         let slope = Quat::from_rotation_x(std::f32::consts::FRAC_PI_4);
 
         // let total_z = self.origin_vertex.1 * self.chunk_size.1 as i32 + z;
-        for z in 0..=self.chunk_size.1 as i32 {
-            for x in 0..=self.chunk_size.0 as i32 {
-                let tx = x as f32 / self.chunk_size.0 as f32;
-                let x_position = (tx - 0.5) * self.chunk_size.0 as f32 * self.quad_size.x;
-                let z_position = z as f32 * self.quad_size.y;
-
-                let sample_x = (x + self.origin_vertex.0 * self.chunk_size.0 as i32) as f64;
-                let sample_z = (self.chunk_size.1 as i32 - z
-                    + self.origin_vertex.1 * self.chunk_size.1 as i32)
-                    as f64;
-                let noise_sample = noise.get([sample_x, sample_z]) as f32;
+        for vertex_z in 0..=self.chunk_size.1 as i32 {
+            for vertex_x in 0..=self.chunk_size.0 as i32 {
+                let global_vx = vertex_x + self.origin_vertex.0 * self.chunk_size.0 as i32;
+                let global_vz = self.chunk_size.1 as i32 - vertex_z
+                    + self.origin_vertex.1 * self.chunk_size.1 as i32;
+                let noise_sample = noise.get([global_vx as f64, global_vz as f64]) as f32;
                 let sloped_noise = slope * Vec3::new(0., noise_sample, 0.);
 
+                let x_position = vertex_x as f32 * self.quad_size.x;
+                let z_position = vertex_z as f32 * self.quad_size.y;
                 let sloped_position = Vec3::new(x_position, -z_position, z_position);
                 let unsloped_position = Vec3::new(x_position, 0., z_position);
                 let target_position = sloped_position + sloped_noise;
@@ -78,7 +75,7 @@ impl TerrainChunk {
                 } else if self.origin_vertex.1 == 0 {
                     // blend between 0 and the noise
                     let chunk_z_ratio =
-                        (self.chunk_size.1 as f32 - z as f32) / self.chunk_size.1 as f32;
+                        (self.chunk_size.1 as f32 - vertex_z as f32) / self.chunk_size.1 as f32;
 
                     positions.push(
                         target_position
@@ -91,17 +88,13 @@ impl TerrainChunk {
                     normals.push(Vec3::Y.to_array());
                 }
 
-                // TODO: offsets for less repetitive uv?
-                uvs.push([
-                    tx,
-                    (z % (self.chunk_size.1 + 1) as i32) as f32 / self.chunk_size.1 as f32,
-                ]);
+                uvs.push([global_vz as f32 / 8., global_vx as f32 / 8.]);
             }
 
-            if z < self.chunk_size.1 as i32 {
+            if vertex_z < self.chunk_size.1 as i32 {
                 for x in 0..self.chunk_size.0 {
                     let row_offset = self.chunk_size.0 as u32 + 1;
-                    let quad_index = row_offset * z as u32 + x as u32;
+                    let quad_index = row_offset * vertex_z as u32 + x as u32;
                     // right triangle
                     indices.push(quad_index + row_offset + 1);
                     indices.push(quad_index + 1);
@@ -146,8 +139,9 @@ impl TerrainChunk {
                 mesh: meshes.add(mesh),
                 material: materials.add(StandardMaterial {
                     base_color_texture: Some(textures.ground.clone()),
-                    depth_map: Some(textures.ground_displacement.clone()),
                     normal_map_texture: Some(textures.ground_normal.clone()),
+                    thickness_texture: Some(textures.ground_displacement.clone()),
+                    depth_map: Some(textures.ground_displacement.clone()),
                     ..Default::default()
                 }),
                 transform: Transform::from_xyz(x, y, z),
