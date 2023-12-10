@@ -9,6 +9,9 @@ pub use game::*;
 mod menu;
 pub use menu::*;
 
+mod scene;
+pub use scene::*;
+
 mod systems;
 pub use systems::*;
 

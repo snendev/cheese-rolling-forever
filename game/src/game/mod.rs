@@ -12,9 +12,6 @@ pub use cheese::*;
 mod person;
 pub use person::*;
 
-mod scene;
-pub use scene::*;
-
 mod systems;
 
 mod terrain;
