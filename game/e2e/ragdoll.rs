@@ -8,7 +8,7 @@ use bevy_xpbd_3d::{
     resources::Gravity,
 };
 
-use cheese::{AppState, Cheese, CheeseRacePlugin, Person};
+use cheese_game::{AppState, Cheese, CheeseRacePlugin, Person};
 
 fn main() {
     Test::new("Ragdoll".to_string(), |app| {

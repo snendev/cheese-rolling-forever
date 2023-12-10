@@ -2,7 +2,7 @@ use bevy_geppetto::Test;
 
 use bevy_xpbd_3d::plugins::PhysicsDebugPlugin;
 
-use cheese::{
+use cheese_game::{
     CheeseAssetsPlugin, CheeseRacePlugin, MenuPlugin, PlayerCameraPlugin, RaceScenePlugin,
     TerrainPlugin,
 };

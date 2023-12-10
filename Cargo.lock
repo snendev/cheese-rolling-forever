@@ -1475,7 +1475,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd16c4719339c4530435d38e511904438d07cce7950afa3718a84ac36c10e89e"
 
 [[package]]
-name = "cheese"
+name = "cheese_app_native"
+version = "0.1.0"
+dependencies = [
+ "cfg-if",
+ "cheese_game",
+]
+
+[[package]]
+name = "cheese_app_wasm"
+version = "0.1.0"
+dependencies = [
+ "cfg-if",
+ "cheese_game",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "cheese_game"
 version = "0.1.0"
 dependencies = [
  "bevy",
@@ -4347,6 +4364,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ed0d4f68a3015cc185aff4db9506a015f4b96f95303897bfa23f846db54064e"
 dependencies = [
  "cfg-if",
+ "serde",
+ "serde_json",
  "wasm-bindgen-macro",
 ]
 

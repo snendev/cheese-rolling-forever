@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+#[cfg(not(target_arch = "wasm32"))]
 use bevy_atmosphere::{
     collection::gradient::Gradient,
     model::AtmosphereModel,
@@ -37,6 +38,7 @@ impl PlayerCamera {
                     .looking_at(target, Vec3::Y),
                 ..Default::default()
             },
+            #[cfg(not(target_arch = "wasm32"))]
             AtmosphereCamera::default(),
         )
     }
@@ -93,17 +95,17 @@ pub struct PlayerCameraPlugin;
 
 impl Plugin for PlayerCameraPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<CameraDirection>()
-            .add_plugins((
-                dolly::DollyPlugin::<PlayerCamera>::default(),
-                AtmospherePlugin,
-            ))
+        #[cfg(not(target_arch = "wasm32"))]
+        app.add_plugins(AtmospherePlugin)
             .insert_resource(AtmosphereModel::new(Gradient {
                 sky: Color::rgb(0.27, 0.39, 0.48),
                 horizon: Color::rgb(0.29, 0.43, 0.53),
                 ground: Color::rgb(0.3, 0.5, 0.6),
                 ..Default::default()
-            }))
+            }));
+
+        app.init_resource::<CameraDirection>()
+            .add_plugins(dolly::DollyPlugin::<PlayerCamera>::default())
             .add_systems(OnEnter(AppState::SpawningScene), spawn_camera)
             .add_systems(
                 Update,

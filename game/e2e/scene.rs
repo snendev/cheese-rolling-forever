@@ -4,7 +4,7 @@ use bevy_geppetto::Test;
 
 use bevy_xpbd_3d::{components::ExternalImpulse, plugins::PhysicsDebugPlugin};
 
-use cheese::{
+use cheese_game::{
     AppState, Cheese, CheeseAssetsPlugin, CheeseRacePlugin, Person, PlayerCameraPlugin,
     RaceScenePlugin, TerrainPlugin,
 };

@@ -4,7 +4,7 @@ use bevy_geppetto::Test;
 
 use bevy_xpbd_3d::{components::LinearVelocity, plugins::PhysicsDebugPlugin, resources::Gravity};
 
-use cheese::{
+use cheese_game::{
     AppState, Cheese, CheeseAssetsPlugin, CheeseRacePlugin, RaceScenePlugin, TerrainPlugin,
 };
 

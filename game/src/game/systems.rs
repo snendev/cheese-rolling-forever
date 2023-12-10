@@ -129,10 +129,6 @@ pub(crate) fn loop_ragdolls(
         if (cheese_transform.translation.y - transform.translation.y).abs() >= 300.
             || transform.translation.is_nan()
         {
-            info!(
-                "Lakitu! {} - {}",
-                cheese_transform.translation.y, transform.translation.y
-            );
             *transform = Transform::from_translation(get_spawn_point(
                 cheese_transform.translation,
                 count_looped_this_frame, // + random_offset
@@ -170,11 +166,6 @@ pub(crate) fn spawn_ragdolls(
 
     let mut rng = rand::thread_rng();
     let mut spawn_ragdoll = |index: Option<usize>| {
-        info!(
-            "Spawning!! time: {:?} since last spawn {:?}",
-            time.elapsed(),
-            time_since_last_spawn
-        );
         let index = index.unwrap_or_else(|| rng.gen_range(0..5));
         Person::new(
             1.5 + rng.gen_range(1..=10) as f32 / 5.,

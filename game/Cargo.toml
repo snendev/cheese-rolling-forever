@@ -1,0 +1,51 @@
+[package]
+name = "cheese_game"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = { version = "0.12.1", features = [
+    "jpeg",
+    "pbr_transmission_textures",
+    "wav",
+] }
+bevy_asset_loader = { version = "0.18.0", features = ["3d"] }
+bevy_atmosphere = "0.8.1"
+bevy_xpbd_3d = "0.3.2"
+dolly = "0.4.2"
+itertools = "0.12.0"
+noise = "0.8"
+rand = "0.8.5"
+
+[dev-dependencies]
+bevy_geppetto = { git = "https://github.com/snendev/bevy_geppetto" }
+
+[[test]]
+name = "cheese"
+path = "e2e/cheese.rs"
+harness = false
+
+[[test]]
+name = "lakitu"
+path = "e2e/lakitu.rs"
+harness = false
+
+[[test]]
+name = "menu"
+path = "e2e/menu.rs"
+harness = false
+
+[[test]]
+name = "ragdoll"
+path = "e2e/ragdoll.rs"
+harness = false
+
+[[test]]
+name = "scene"
+path = "e2e/scene.rs"
+harness = false
+
+[[test]]
+name = "terrain"
+path = "e2e/terrain.rs"
+harness = false

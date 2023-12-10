@@ -4,14 +4,15 @@ use bevy_geppetto::Test;
 
 use bevy_xpbd_3d::plugins::PhysicsDebugPlugin;
 
-use cheese::{
-    AppState, Cheese, CheeseAssetsPlugin, CheeseRacePlugin, Person, Terrain, TerrainNoise,
-    TerrainPlugin,
+use cheese_game::{
+    AppState, Cheese, CheeseAssetsPlugin, CheeseRacePlugin, PlayerCameraPlugin, Terrain,
+    TerrainNoise, TerrainPlugin,
 };
 
 fn main() {
     Test::new("Cheese controls".to_string(), |app| {
         app.add_plugins((
+            PlayerCameraPlugin,
             CheeseRacePlugin,
             PhysicsDebugPlugin::default(),
             TerrainPlugin::default(),
@@ -28,11 +29,6 @@ fn handle_start(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(2., 10., -6.).looking_at(Vec3::new(0., 5., -8.), Vec3::Y),
-        ..Default::default()
-    });
-
     commands.spawn(DirectionalLightBundle {
         directional_light: DirectionalLight {
             illuminance: 10.0e3,
@@ -42,17 +38,10 @@ fn handle_start(
         ..Default::default()
     });
 
+    commands.spawn(Cheese::bundle(
+        Cheese::default_transform(),
+        &mut meshes,
+        &mut materials,
+    ));
     commands.spawn(Terrain::default().to_bundle());
-
-    for (x, y) in (0..1).zip(0..1) {
-        Person::default().spawn_ragdoll(
-            Vec3::new(4. * x as f32, 5. + (4. * y as f32), -8. + (4. * y as f32)),
-            Vec3::ZERO,
-            &mut commands,
-            &mut meshes,
-            &mut materials,
-        );
-    }
-
-    commands.spawn((Cheese, SpatialBundle::default()));
 }

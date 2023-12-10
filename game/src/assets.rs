@@ -5,7 +5,7 @@ use bevy::{
 };
 use bevy_asset_loader::prelude::*;
 
-use crate::AppState;
+use crate::{despawn_all_recursive, AppState};
 
 pub struct CheeseAssetsPlugin {
     // allow tests to continue straight to other states
@@ -31,7 +31,11 @@ impl Plugin for CheeseAssetsPlugin {
         )
         .add_collection_to_loading_state::<_, TextureAssets>(AppState::Loading)
         .add_collection_to_loading_state::<_, AudioAssets>(AppState::Loading)
-        .add_systems(OnExit(AppState::Loading), tile_terrain_assets)
+        .add_systems(Startup, spawn_loading_ui)
+        .add_systems(
+            OnExit(AppState::Loading),
+            (tile_terrain_assets, despawn_all_recursive::<LoadingUI>),
+        )
         .add_systems(OnEnter(AppState::SpawningScene), play_bg_music);
     }
 }
@@ -77,4 +81,36 @@ fn play_bg_music(mut commands: Commands, bg_track: Res<AudioAssets>) {
             ..Default::default()
         },
     });
+}
+
+#[derive(Component)]
+struct LoadingUI;
+
+fn spawn_loading_ui(mut commands: Commands) {
+    commands.spawn(Camera2dBundle::default());
+    commands
+        .spawn((
+            Name::new("Loading UI"),
+            LoadingUI,
+            NodeBundle {
+                style: Style {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        ))
+        .with_children(|builder| {
+            builder.spawn(TextBundle::from_section(
+                "Loading...",
+                TextStyle {
+                    font_size: 128.0,
+                    color: Color::rgb(0.02, 0.02, 0.1),
+                    ..Default::default()
+                },
+            ));
+        });
 }
