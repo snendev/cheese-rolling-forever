@@ -117,7 +117,7 @@ pub(crate) fn spawn_ragdolls(
     };
 
     // how many ragdolls to keep active
-    const MAX_JUGGLE_COUNT: usize = 50;
+    const MAX_JUGGLE_COUNT: usize = 100;
     const NEAR_MAX_COUNT: usize = 35;
     // use different spawn rates when near max and not
     const LOW_COUNT_SPAWN_RATE: Duration = Duration::from_secs(1);
@@ -157,8 +157,8 @@ pub(crate) fn spawn_ragdolls(
     } else {
         // spawn bursts of ragdolls
         if time_since_last_spawn > LOW_COUNT_SPAWN_RATE {
-            for index in 0..2 {
-                spawn_ragdoll(Some(index + 1));
+            for index in 0..4 {
+                spawn_ragdoll(Some(index));
             }
         }
     }
@@ -171,6 +171,6 @@ fn get_spawn_point(cheese_translation: Vec3, index: usize, additional_offset: f3
     const AVG_GAP: f32 = 8.;
     cheese_translation
         + LAKITU_OFFSET
-        + Vec3::X * AVG_GAP * (2. - index as f32)
+        + Vec3::X * AVG_GAP * (index as f32)
         + Vec3::X * additional_offset
 }
