@@ -1,3 +1,6 @@
+// code adapted from
+// https://github.com/Razaekel/noise-rs/blob/d79aa83cc5bab27ccab3c82cc9265add0bbeaa46/examples/complexplanet.rs
+
 use noise::{Billow, Blend, Fbm, MultiFractal, NoiseFn, Perlin, RidgedMulti, ScaleBias};
 
 use bevy::prelude::*;
