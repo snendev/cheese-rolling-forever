@@ -18,9 +18,9 @@ pub(crate) fn handle_inputs(
     // "reference" refers to the reference frame, the coordinate system of the cheese's
     // downhill motion where "forward" is the direction of movement and "up" is perpendicular
     // to the hill.
-    let reference_frame_influence = if inputs.pressed(KeyCode::Left) {
+    let reference_frame_influence = if inputs.pressed(KeyCode::Left) || inputs.pressed(KeyCode::A) {
         Some(-INFLUENCE)
-    } else if inputs.pressed(KeyCode::Right) {
+    } else if inputs.pressed(KeyCode::Right) || inputs.pressed(KeyCode::D) {
         Some(INFLUENCE)
     } else {
         None
