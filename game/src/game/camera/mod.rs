@@ -102,7 +102,6 @@ impl Plugin for PlayerCameraPlugin {
                 sky: Color::rgb(0.27, 0.39, 0.48),
                 horizon: Color::rgb(0.29, 0.43, 0.53),
                 ground: Color::rgb(0.3, 0.5, 0.6),
-                ..Default::default()
             }));
 
         app.init_resource::<CameraDirection>()

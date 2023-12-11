@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-use crate::{button, AppState};
+use crate::{button, AppState, FontAssets};
 
-const GAME_TITLE: &str = "Cheese";
+const GAME_TITLE: &str = "Cheese Rolling: Forever";
 
 #[derive(Component)]
 pub(super) struct MenuUI;
@@ -20,7 +20,7 @@ pub(super) fn handle_play(
     }
 }
 
-pub(super) fn spawn_start_menu(mut commands: Commands) {
+pub(super) fn spawn_start_menu(mut commands: Commands, fonts: Res<FontAssets>) {
     commands
         .spawn((
             Name::new("Menu UI"),
@@ -53,7 +53,7 @@ pub(super) fn spawn_start_menu(mut commands: Commands) {
                     },
                 ))
                 .with_children(|builder| {
-                    builder.spawn((Name::new("Title"), title_node()));
+                    builder.spawn((Name::new("Title"), title_node(fonts.title.clone())));
                     builder
                         .spawn((Name::new("Play Button"), PlayButton, button()))
                         .with_children(|parent| {
@@ -91,13 +91,13 @@ pub(super) fn spawn_start_menu(mut commands: Commands) {
         });
 }
 
-fn title_node() -> TextBundle {
+fn title_node(font: Handle<Font>) -> TextBundle {
     TextBundle::from_section(
-        format!("{}", GAME_TITLE),
+        GAME_TITLE.to_string(),
         TextStyle {
-            font_size: 128.,
+            font,
+            font_size: 108.,
             color: Color::rgba(1., 1., 1., 0.75),
-            ..Default::default()
         },
     )
 }

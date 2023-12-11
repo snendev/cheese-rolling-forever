@@ -128,7 +128,7 @@ pub(super) fn spawn_game_over_ui(
                     ));
                     if score.0 > high_score.0 {
                         builder.spawn(TextBundle::from_section(
-                            format!("New high score!",),
+                            "New high score!",
                             TextStyle {
                                 font_size: 28.0,
                                 color: Color::rgb(0.02, 0.02, 0.1),
@@ -137,7 +137,7 @@ pub(super) fn spawn_game_over_ui(
                         ));
                     }
                     builder.spawn(TextBundle::from_section(
-                        format!("Previous high score:",),
+                        "Previous high score:",
                         TextStyle {
                             font_size: 24.0,
                             color: Color::rgb(0.02, 0.02, 0.1),

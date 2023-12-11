@@ -69,23 +69,27 @@ impl TerrainChunk {
                 let unsloped_position = Vec3::new(x_position, 0., z_position);
                 let target_position = sloped_position + sloped_noise;
 
-                if self.origin_vertex.1 > 0 {
-                    positions.push(unsloped_position.to_array());
-                    normals.push(Vec3::Y.to_array());
-                } else if self.origin_vertex.1 == 0 {
-                    // blend between 0 and the noise
-                    let chunk_z_ratio =
-                        (self.chunk_size.1 as f32 - vertex_z as f32) / self.chunk_size.1 as f32;
+                match self.origin_vertex.1.cmp(&0) {
+                    std::cmp::Ordering::Less => {
+                        positions.push(target_position.to_array());
+                        normals.push(Vec3::Y.to_array());
+                    }
+                    std::cmp::Ordering::Equal => {
+                        // blend between 0 and the noise
+                        let chunk_z_ratio =
+                            (self.chunk_size.1 as f32 - vertex_z as f32) / self.chunk_size.1 as f32;
 
-                    positions.push(
-                        target_position
-                            .lerp(unsloped_position, chunk_z_ratio)
-                            .to_array(),
-                    );
-                    normals.push(Vec3::Y.to_array());
-                } else {
-                    positions.push(target_position.to_array());
-                    normals.push(Vec3::Y.to_array());
+                        positions.push(
+                            target_position
+                                .lerp(unsloped_position, chunk_z_ratio)
+                                .to_array(),
+                        );
+                        normals.push(Vec3::Y.to_array());
+                    }
+                    std::cmp::Ordering::Greater => {
+                        positions.push(unsloped_position.to_array());
+                        normals.push(Vec3::Y.to_array());
+                    }
                 }
 
                 uvs.push([global_vz as f32 / 8., global_vx as f32 / 8.]);

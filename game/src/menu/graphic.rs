@@ -37,7 +37,7 @@ pub(super) fn spawn_graphic(
             builder.spawn((
                 Name::new("Spotlight Right"),
                 SpotLightBundle {
-                    spot_light: spotlight.clone(),
+                    spot_light: spotlight,
                     transform: Transform::from_xyz(2., 3., 2.).looking_at(Vec3::ZERO, Vec3::Y),
                     ..Default::default()
                 },

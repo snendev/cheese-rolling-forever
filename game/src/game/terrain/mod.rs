@@ -112,7 +112,7 @@ impl Terrain {
         // spawn missing in-bounds chunks
         for (x, y) in (left_edge..=right_edge).cartesian_product(backward_edge..=forward_edge) {
             if !self.chunk_entities.contains_key(&(x, y)) {
-                let chunk_bundle = self.generate_chunk((x, y), noise, &textures, meshes, materials);
+                let chunk_bundle = self.generate_chunk((x, y), noise, textures, meshes, materials);
                 let chunk_entity = commands.spawn(chunk_bundle).id();
                 self.chunk_entities.insert((x, y), vec![chunk_entity]);
             }

@@ -1,8 +1,8 @@
-use bevy::{pbr::wireframe::WireframePlugin, prelude::*};
+use bevy::prelude::*;
 
 use bevy_geppetto::Test;
 
-use bevy_xpbd_3d::{components::LinearVelocity, plugins::PhysicsDebugPlugin, resources::Gravity};
+use bevy_xpbd_3d::{components::LinearVelocity, resources::Gravity};
 
 use cheese_game::{
     AppState, Cheese, CheeseRacePlugin, RaceScenePlugin, SceneAssetsPlugin, TerrainPlugin,
@@ -13,8 +13,7 @@ fn main() {
         app.add_plugins((
             CheeseRacePlugin,
             RaceScenePlugin,
-            PhysicsDebugPlugin::default(),
-            WireframePlugin::default(),
+            // PhysicsDebugPlugin::default(),
             TerrainPlugin::default(),
             SceneAssetsPlugin::new(AppState::SpawningScene),
         ))

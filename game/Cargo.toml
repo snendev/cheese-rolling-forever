@@ -4,13 +4,35 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = { version = "0.12.1", features = [
+bevy = { version = "0.12.1", default-features = false, features = [
+    # added features
     "jpeg",
     "pbr_transmission_textures",
-    "wav",
+    # defaults excluding audio,vorbis
+    "bevy_asset",
+    "bevy_gilrs",
+    "bevy_scene",
+    "bevy_winit",
+    "bevy_core_pipeline",
+    "bevy_pbr",
+    "bevy_gltf",
+    "bevy_render",
+    "bevy_sprite",
+    "bevy_text",
+    "bevy_ui",
+    "multi-threaded",
+    "png",
+    "hdr",
+    "x11",
+    "bevy_gizmos",
+    "android_shared_stdcxx",
+    "tonemapping_luts",
+    "default_font",
+    "webgl2",
 ] }
 bevy_asset_loader = { version = "0.18.0", features = ["3d"] }
 bevy_atmosphere = "0.8.1"
+bevy_kira_audio = { version = "0.18.0", features = ["mp3", "wav"] }
 bevy_xpbd_3d = "0.3.2"
 dolly = "0.4.2"
 itertools = "0.12.0"

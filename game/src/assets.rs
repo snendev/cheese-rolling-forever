@@ -1,9 +1,13 @@
 use bevy::{
-    audio::{PlaybackMode, Volume, VolumeLevel},
     prelude::*,
     render::texture::{ImageAddressMode, ImageSampler, ImageSamplerDescriptor},
 };
+
 use bevy_asset_loader::prelude::*;
+use bevy_kira_audio::{
+    prelude::{Audio, AudioPlugin, AudioSource},
+    AudioControl,
+};
 
 use crate::{despawn_all_recursive, AppState};
 
@@ -26,27 +30,35 @@ impl Default for SceneAssetsPlugin {
 
 impl Plugin for SceneAssetsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_loading_state(
-            LoadingState::new(AppState::Loading).continue_to_state(self.after_load_state),
-        )
-        .add_collection_to_loading_state::<_, SceneAssets>(AppState::Loading)
-        .add_collection_to_loading_state::<_, TextureAssets>(AppState::Loading)
-        .add_collection_to_loading_state::<_, AudioAssets>(AppState::Loading)
-        .add_systems(Startup, spawn_loading_ui)
-        .add_systems(
-            OnExit(AppState::Loading),
-            (
-                tile_terrain_assets,
-                despawn_all_recursive::<LoadingUI>,
-                despawn_all_recursive::<LoadingUICamera>,
-            ),
-        )
-        .add_systems(
-            OnEnter(AppState::SpawningScene),
-            // after we play once, just keep the loop going forever
-            play_bg_music.run_if(run_once()),
-        );
+        app.add_plugins(AudioPlugin)
+            .add_loading_state(
+                LoadingState::new(AppState::Loading).continue_to_state(self.after_load_state),
+            )
+            .add_collection_to_loading_state::<_, FontAssets>(AppState::Loading)
+            .add_collection_to_loading_state::<_, SceneAssets>(AppState::Loading)
+            .add_collection_to_loading_state::<_, TextureAssets>(AppState::Loading)
+            .add_collection_to_loading_state::<_, AudioAssets>(AppState::Loading)
+            .add_systems(Startup, spawn_loading_ui)
+            .add_systems(
+                OnExit(AppState::Loading),
+                (
+                    tile_terrain_assets,
+                    despawn_all_recursive::<LoadingUI>,
+                    despawn_all_recursive::<LoadingUICamera>,
+                ),
+            )
+            .add_systems(
+                OnEnter(AppState::SpawningScene),
+                // after we play once, just keep the loop going forever
+                play_bg_music.run_if(run_once()),
+            );
     }
+}
+
+#[derive(AssetCollection, Debug, Resource)]
+pub struct FontAssets {
+    #[asset(path = "fonts/Poppins-ExtraBoldItalic.ttf")]
+    pub title: Handle<Font>,
 }
 
 #[derive(AssetCollection, Debug, Resource)]
@@ -85,19 +97,16 @@ fn tile_terrain_assets(textures: Res<TextureAssets>, mut images: ResMut<Assets<I
 
 #[derive(AssetCollection, Resource)]
 pub struct AudioAssets {
-    #[asset(path = "audio/CheeseOnTheMoon.wav")]
+    #[cfg_attr(not(target_arch = "wasm32"), asset(path = "audio/CheeseOnTheMoon.wav"))]
+    #[cfg_attr(target_arch = "wasm32", asset(path = "audio/CheeseOnTheMoon.mp3"))]
     pub bg_track: Handle<AudioSource>,
 }
 
-fn play_bg_music(mut commands: Commands, bg_track: Res<AudioAssets>) {
-    commands.spawn(AudioBundle {
-        source: bg_track.bg_track.clone(),
-        settings: PlaybackSettings {
-            mode: PlaybackMode::Loop,
-            volume: Volume::Relative(VolumeLevel::new(0.5)),
-            ..Default::default()
-        },
-    });
+fn play_bg_music(audio: Res<Audio>, bg_track: Res<AudioAssets>) {
+    audio
+        .play(bg_track.bg_track.clone())
+        .looped()
+        .with_volume(0.5);
 }
 
 #[derive(Component)]

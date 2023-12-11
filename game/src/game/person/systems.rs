@@ -73,6 +73,7 @@ pub(crate) fn despawn_infinites(
 }
 
 // aka the "lakitu" system
+#[allow(clippy::type_complexity)]
 pub(crate) fn loop_ragdolls(
     mut ragdoll_query: Query<
         (&mut Transform, &mut LinearVelocity, &mut AngularVelocity),
@@ -115,6 +116,7 @@ pub(crate) fn loop_ragdolls(
     }
 }
 
+#[allow(clippy::type_complexity)]
 pub(crate) fn spawn_ragdolls(
     mut commands: Commands,
     ragdoll_query: Query<(Entity, &Transform), With<Person>>,
@@ -130,7 +132,7 @@ pub(crate) fn spawn_ragdolls(
 
     // how many ragdolls to keep active
     const MAX_JUGGLE_COUNT: usize = 100;
-    const NEAR_MAX_COUNT: usize = 35;
+    const NEAR_MAX_COUNT: usize = 60;
     // use different spawn rates when near max and not
     const LOW_COUNT_SPAWN_RATE: Duration = Duration::from_secs(2);
     const HIGH_COUNT_SPAWN_RATE: Duration = Duration::from_secs(4);
@@ -155,11 +157,7 @@ pub(crate) fn spawn_ragdolls(
         *last_spawned_time = time.elapsed();
     };
 
-    if num_ragdolls > MAX_JUGGLE_COUNT {
-        // must have goofed somewhere
-        // let ragdolls_to_delete = ragdoll_query.iter()
-        // commands.entity(entity).despawn();
-    } else if num_ragdolls == MAX_JUGGLE_COUNT {
+    if num_ragdolls >= MAX_JUGGLE_COUNT {
         // do nothing
     } else if num_ragdolls > NEAR_MAX_COUNT {
         // spawn ragdolls slowly
