@@ -7,28 +7,29 @@ use bevy_asset_loader::prelude::*;
 
 use crate::{despawn_all_recursive, AppState};
 
-pub struct CheeseAssetsPlugin {
+pub struct SceneAssetsPlugin {
     // allow tests to continue straight to other states
     pub after_load_state: AppState,
 }
 
-impl CheeseAssetsPlugin {
+impl SceneAssetsPlugin {
     pub fn new(after_load_state: AppState) -> Self {
         Self { after_load_state }
     }
 }
 
-impl Default for CheeseAssetsPlugin {
+impl Default for SceneAssetsPlugin {
     fn default() -> Self {
         Self::new(AppState::Menu)
     }
 }
 
-impl Plugin for CheeseAssetsPlugin {
+impl Plugin for SceneAssetsPlugin {
     fn build(&self, app: &mut App) {
         app.add_loading_state(
             LoadingState::new(AppState::Loading).continue_to_state(self.after_load_state),
         )
+        .add_collection_to_loading_state::<_, SceneAssets>(AppState::Loading)
         .add_collection_to_loading_state::<_, TextureAssets>(AppState::Loading)
         .add_collection_to_loading_state::<_, AudioAssets>(AppState::Loading)
         .add_systems(Startup, spawn_loading_ui)
@@ -42,6 +43,14 @@ impl Plugin for CheeseAssetsPlugin {
         )
         .add_systems(OnEnter(AppState::SpawningScene), play_bg_music);
     }
+}
+
+#[derive(AssetCollection, Debug, Resource)]
+pub struct SceneAssets {
+    #[asset(path = "scenes/cheese_good.glb")]
+    pub cheese_good: Handle<Scene>,
+    #[asset(path = "scenes/cheese_ok.glb")]
+    pub cheese_ok: Handle<Scene>,
 }
 
 #[derive(AssetCollection, Resource)]

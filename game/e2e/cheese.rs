@@ -5,8 +5,8 @@ use bevy_geppetto::Test;
 use bevy_xpbd_3d::plugins::PhysicsDebugPlugin;
 
 use cheese_game::{
-    AppState, Cheese, CheeseAssetsPlugin, CheeseRacePlugin, PlayerCameraPlugin, Terrain,
-    TerrainNoise, TerrainPlugin,
+    AppState, Cheese, CheeseRacePlugin, PlayerCameraPlugin, SceneAssets, SceneAssetsPlugin,
+    Terrain, TerrainNoise, TerrainPlugin,
 };
 
 fn main() {
@@ -16,7 +16,7 @@ fn main() {
             CheeseRacePlugin,
             PhysicsDebugPlugin::default(),
             TerrainPlugin::default(),
-            CheeseAssetsPlugin::new(AppState::SpawningScene),
+            SceneAssetsPlugin::new(AppState::SpawningScene),
         ))
         .insert_resource(TerrainNoise::from_noise(noise::Constant::new(0.)))
         .add_systems(Startup, handle_start);
@@ -24,11 +24,7 @@ fn main() {
     .run();
 }
 
-fn handle_start(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
+fn handle_start(mut commands: Commands, scenes: Res<SceneAssets>) {
     commands.spawn(DirectionalLightBundle {
         directional_light: DirectionalLight {
             illuminance: 10.0e3,
@@ -38,10 +34,6 @@ fn handle_start(
         ..Default::default()
     });
 
-    commands.spawn(Cheese::bundle(
-        Cheese::default_transform(),
-        &mut meshes,
-        &mut materials,
-    ));
+    commands.spawn(Cheese::bundle(Cheese::default_transform(), &scenes));
     commands.spawn(Terrain::default().to_bundle());
 }

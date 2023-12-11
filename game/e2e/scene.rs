@@ -5,8 +5,8 @@ use bevy_geppetto::Test;
 use bevy_xpbd_3d::{components::ExternalImpulse, plugins::PhysicsDebugPlugin};
 
 use cheese_game::{
-    AppState, Cheese, CheeseAssetsPlugin, CheeseRacePlugin, Person, PlayerCameraPlugin,
-    RaceScenePlugin, TerrainPlugin,
+    AppState, Cheese, CheeseRacePlugin, Person, PlayerCameraPlugin, RaceScenePlugin,
+    SceneAssetsPlugin, TerrainPlugin,
 };
 
 fn main() {
@@ -16,7 +16,7 @@ fn main() {
             CheeseRacePlugin,
             TerrainPlugin::default(),
             RaceScenePlugin,
-            CheeseAssetsPlugin::new(AppState::SpawningScene),
+            SceneAssetsPlugin::new(AppState::SpawningScene),
             PhysicsDebugPlugin::default(),
         ))
         .insert_resource(GlobalVolume::new(0.))

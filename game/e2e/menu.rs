@@ -3,7 +3,7 @@ use bevy_geppetto::Test;
 use bevy_xpbd_3d::plugins::PhysicsDebugPlugin;
 
 use cheese_game::{
-    CheeseAssetsPlugin, CheeseRacePlugin, MenuPlugin, PlayerCameraPlugin, RaceScenePlugin,
+    CheeseRacePlugin, MenuPlugin, PlayerCameraPlugin, RaceScenePlugin, SceneAssetsPlugin,
     TerrainPlugin,
 };
 
@@ -16,7 +16,7 @@ fn main() {
             TerrainPlugin::default(),
             RaceScenePlugin,
             PhysicsDebugPlugin::default(),
-            CheeseAssetsPlugin::default(),
+            SceneAssetsPlugin::default(),
             // the thing we actually want to test
             MenuPlugin,
         ));

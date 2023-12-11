@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::Cheese;
+use crate::{Cheese, SceneAssets};
 
 #[derive(Component)]
 pub(super) struct MenuGraphic;
@@ -9,6 +9,7 @@ pub(super) struct MenuGraphicCheese;
 
 pub(super) fn spawn_graphic(
     mut commands: Commands,
+    scenes: Res<SceneAssets>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
@@ -25,8 +26,7 @@ pub(super) fn spawn_graphic(
                 MenuGraphicCheese,
                 Cheese::graphic(
                     Transform::from_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
-                    &mut meshes,
-                    &mut materials,
+                    &scenes,
                 ),
             ));
             // lighting

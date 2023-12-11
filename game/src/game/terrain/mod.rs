@@ -1,3 +1,4 @@
+use ::noise::NoiseFn;
 use itertools::Itertools;
 
 use bevy::{prelude::*, utils::HashMap};
@@ -9,7 +10,6 @@ mod noise;
 pub use noise::*;
 
 mod plugin;
-use ::noise::NoiseFn;
 pub use plugin::*;
 
 use crate::TextureAssets;
@@ -20,7 +20,7 @@ pub struct Terrain {
     pub chunk_size: (u16, u16),
     pub quad_size: Vec2,
     pub noise_seed: u32,
-    pub rendered_chunks: HashMap<(i32, i32), Entity>,
+    pub chunk_entities: HashMap<(i32, i32), Vec<Entity>>,
 }
 
 impl Terrain {
@@ -32,7 +32,7 @@ impl Terrain {
             chunk_size,
             quad_size: Vec2::ONE,
             noise_seed: Self::DEFAULT_SEED,
-            rendered_chunks: HashMap::new(),
+            chunk_entities: HashMap::new(),
         }
     }
 
@@ -86,32 +86,35 @@ impl Terrain {
         // remove out-of-bounds chunks
 
         let chunks_to_remove = self
-            .rendered_chunks
+            .chunk_entities
             .iter()
-            .filter_map(|((chunk_x, chunk_y), entity)| {
+            .filter_map(|((chunk_x, chunk_y), _)| {
                 if *chunk_x < left_edge
                     || *chunk_x > right_edge
                     || *chunk_y < backward_edge
                     || *chunk_y > forward_edge
                 {
-                    Some(((*chunk_x, *chunk_y), *entity))
+                    Some((*chunk_x, *chunk_y))
                 } else {
                     None
                 }
             })
             .collect::<Vec<_>>();
 
-        for ((chunk_x, chunk_y), entity) in chunks_to_remove {
-            self.rendered_chunks.remove(&(chunk_x, chunk_y));
-            commands.entity(entity).despawn();
+        for chunk in chunks_to_remove {
+            if let Some(entities) = self.chunk_entities.remove(&chunk) {
+                for entity in entities {
+                    commands.entity(entity).despawn();
+                }
+            }
         }
 
         // spawn missing in-bounds chunks
         for (x, y) in (left_edge..=right_edge).cartesian_product(backward_edge..=forward_edge) {
-            if !self.rendered_chunks.contains_key(&(x, y)) {
+            if !self.chunk_entities.contains_key(&(x, y)) {
                 let chunk_bundle = self.generate_chunk((x, y), noise, &textures, meshes, materials);
                 let chunk_entity = commands.spawn(chunk_bundle).id();
-                self.rendered_chunks.insert((x, y), chunk_entity);
+                self.chunk_entities.insert((x, y), vec![chunk_entity]);
             }
         }
     }

@@ -8,7 +8,7 @@ use bevy_xpbd_3d::{
     resources::Gravity,
 };
 
-use cheese_game::{AppState, Cheese, CheeseRacePlugin, Person};
+use cheese_game::{AppState, Cheese, CheeseRacePlugin, Person, SceneAssets};
 
 fn main() {
     Test::new("Ragdoll".to_string(), |app| {
@@ -39,6 +39,7 @@ fn handle_start(inputs: Res<Input<KeyCode>>, mut q: Query<&mut GravityScale>) {
 
 fn spawn_scene(
     mut commands: Commands,
+    scenes: Res<SceneAssets>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
@@ -64,9 +65,5 @@ fn spawn_scene(
         &mut materials,
     );
 
-    commands.spawn(Cheese::bundle(
-        Cheese::default_transform(),
-        &mut meshes,
-        &mut materials,
-    ));
+    commands.spawn(Cheese::bundle(Cheese::default_transform(), &scenes));
 }

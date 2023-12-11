@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 
-use crate::AppState;
+use crate::{AppState, SceneAssets};
 
 mod systems;
 use systems::*;
@@ -35,30 +35,23 @@ impl Cheese {
             .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2))
     }
 
-    pub fn graphic(
-        transform: Transform,
-        meshes: &mut Assets<Mesh>,
-        materials: &mut Assets<StandardMaterial>,
-    ) -> PbrBundle {
-        PbrBundle {
-            mesh: meshes.add(Self::shape().into()),
-            material: materials.add(Color::rgb(1., 0.98, 0.8).into()),
+    pub fn graphic(transform: Transform, scenes: &SceneAssets) -> SceneBundle {
+        info!("{:?}", scenes);
+        SceneBundle {
+            // TODO: Why does this often fail to pull the correct asset
+            scene: scenes.cheese_good.clone(),
             transform,
             ..Default::default()
         }
     }
 
-    pub fn bundle(
-        transform: Transform,
-        meshes: &mut Assets<Mesh>,
-        materials: &mut Assets<StandardMaterial>,
-    ) -> impl Bundle {
+    pub fn bundle(transform: Transform, scenes: &SceneAssets) -> impl Bundle {
         (
             Cheese,
             Name::new("Cheese"),
             RigidBody::Dynamic,
             Self::collider(),
-            ColliderDensity(1000.),
+            ColliderDensity(900.),
             Restitution {
                 coefficient: 0.0001,
                 combine_rule: CoefficientCombine::Min,
@@ -67,7 +60,7 @@ impl Cheese {
             LinearDamping(0.1),
             AngularDamping(0.1),
             Dominance(1),
-            Self::graphic(transform, meshes, materials),
+            Self::graphic(transform, scenes),
         )
     }
 }

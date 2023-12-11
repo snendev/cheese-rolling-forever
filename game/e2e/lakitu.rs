@@ -5,7 +5,7 @@ use bevy_geppetto::Test;
 use bevy_xpbd_3d::plugins::PhysicsDebugPlugin;
 
 use cheese_game::{
-    AppState, Cheese, CheeseAssetsPlugin, CheeseRacePlugin, Person, Terrain, TerrainNoise,
+    AppState, Cheese, CheeseRacePlugin, Person, SceneAssetsPlugin, Terrain, TerrainNoise,
     TerrainPlugin,
 };
 
@@ -15,7 +15,7 @@ fn main() {
             CheeseRacePlugin,
             PhysicsDebugPlugin::default(),
             TerrainPlugin::default(),
-            CheeseAssetsPlugin::new(AppState::SpawningScene),
+            SceneAssetsPlugin::new(AppState::SpawningScene),
         ))
         .insert_resource(TerrainNoise::from_noise(noise::Constant::new(0.)))
         .add_systems(Startup, handle_start);

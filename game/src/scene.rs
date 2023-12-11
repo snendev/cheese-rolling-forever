@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 
-use crate::{despawn_all_recursive, AppState, Cheese, Terrain, TerrainChunk};
+use crate::{despawn_all_recursive, AppState, Cheese, SceneAssets, Terrain, TerrainChunk};
 
 pub struct RaceScenePlugin;
 
@@ -33,11 +33,7 @@ pub struct RaceCountdown(Timer);
 
 const CHEESE_SPAWN_Z: f32 = 50.;
 
-fn spawn_scene(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
+fn spawn_scene(mut commands: Commands, cheese_scenes: Res<SceneAssets>) {
     commands.spawn(DirectionalLightBundle {
         directional_light: DirectionalLight {
             illuminance: 10.0e3,
@@ -51,11 +47,8 @@ fn spawn_scene(
         Name::new("Race Countdown Timer"),
         RaceCountdown(Timer::from_seconds(3., TimerMode::Once)),
     ));
-    commands.spawn(Cheese::bundle(
-        Transform::from_xyz(0., 50., CHEESE_SPAWN_Z),
-        &mut meshes,
-        &mut materials,
-    ));
+    let cheese_transform = Transform::from_xyz(0., 50., CHEESE_SPAWN_Z);
+    commands.spawn(Cheese::bundle(cheese_transform, &cheese_scenes));
 }
 
 fn begin_countdown(

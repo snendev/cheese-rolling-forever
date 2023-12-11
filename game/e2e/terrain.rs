@@ -5,7 +5,7 @@ use bevy_geppetto::Test;
 use bevy_xpbd_3d::{components::LinearVelocity, plugins::PhysicsDebugPlugin, resources::Gravity};
 
 use cheese_game::{
-    AppState, Cheese, CheeseAssetsPlugin, CheeseRacePlugin, RaceScenePlugin, TerrainPlugin,
+    AppState, Cheese, CheeseRacePlugin, RaceScenePlugin, SceneAssetsPlugin, TerrainPlugin,
 };
 
 fn main() {
@@ -16,7 +16,7 @@ fn main() {
             PhysicsDebugPlugin::default(),
             WireframePlugin::default(),
             TerrainPlugin::default(),
-            CheeseAssetsPlugin::new(AppState::SpawningScene),
+            SceneAssetsPlugin::new(AppState::SpawningScene),
         ))
         .insert_resource(Gravity(Vec3::ZERO))
         .add_systems(Startup, spawn_scene)
