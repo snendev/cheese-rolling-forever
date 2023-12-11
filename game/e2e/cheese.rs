@@ -5,7 +5,7 @@ use bevy_geppetto::Test;
 use bevy_xpbd_3d::plugins::PhysicsDebugPlugin;
 
 use cheese_game::{
-    AppState, Cheese, CheeseRacePlugin, PlayerCameraPlugin, SceneAssets, SceneAssetsPlugin,
+    AppState, Cheese, CheeseRacePlugin, Level, PlayerCameraPlugin, SceneAssets, SceneAssetsPlugin,
     Terrain, TerrainNoise, TerrainPlugin,
 };
 
@@ -35,5 +35,5 @@ fn handle_start(mut commands: Commands, scenes: Res<SceneAssets>) {
     });
 
     commands.spawn(Cheese::bundle(Cheese::default_transform(), &scenes));
-    commands.spawn(Terrain::default().to_bundle());
+    commands.spawn((Terrain::default(), Terrain::name(), Level::default()));
 }

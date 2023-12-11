@@ -5,7 +5,7 @@ use bevy_geppetto::Test;
 use bevy_xpbd_3d::plugins::PhysicsDebugPlugin;
 
 use cheese_game::{
-    AppState, Cheese, CheeseRacePlugin, Person, SceneAssetsPlugin, Terrain, TerrainNoise,
+    AppState, Cheese, CheeseRacePlugin, Level, Person, SceneAssetsPlugin, Terrain, TerrainNoise,
     TerrainPlugin,
 };
 
@@ -42,7 +42,7 @@ fn handle_start(
         ..Default::default()
     });
 
-    commands.spawn(Terrain::default().to_bundle());
+    commands.spawn((Terrain::default(), Terrain::name(), Level::default()));
 
     for (x, y) in (0..1).zip(0..1) {
         Person::default().spawn_ragdoll(

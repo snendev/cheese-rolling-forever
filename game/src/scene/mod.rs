@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 
 use crate::{
-    despawn_all_recursive, AppState, Cheese, Person, PlayerCamera, SceneAssets, Terrain,
+    despawn_all_recursive, AppState, Cheese, Level, Person, PlayerCamera, SceneAssets, Terrain,
     TerrainChunk,
 };
 
@@ -75,7 +75,7 @@ fn spawn_scene(mut commands: Commands, cheese_scenes: Res<SceneAssets>) {
             ..Default::default()
         },
     ));
-    commands.spawn(Terrain::default().to_bundle());
+    commands.spawn((Terrain::default(), Name::new("Terrain"), Level::default()));
     commands.spawn((
         Name::new("Race Countdown Timer"),
         RaceCountdown(Timer::from_seconds(3., TimerMode::Once)),

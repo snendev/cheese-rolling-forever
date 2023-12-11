@@ -34,6 +34,13 @@ bevy_asset_loader = { version = "0.18.0", features = ["3d"] }
 bevy_atmosphere = "0.8.1"
 bevy_kira_audio = { version = "0.18.0", features = ["mp3", "wav"] }
 bevy_xpbd_3d = "0.3.2"
+derive_more = { version = "0.99", features = [
+    "add",
+    "add_assign",
+    "from",
+    "mul",
+    "mul_assign",
+], default-features = false }
 dolly = "0.4.2"
 itertools = "0.12.0"
 noise = "0.8"

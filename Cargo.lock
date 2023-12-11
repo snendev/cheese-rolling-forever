@@ -1513,6 +1513,7 @@ dependencies = [
  "bevy_geppetto",
  "bevy_kira_audio",
  "bevy_xpbd_3d",
+ "derive_more",
  "dolly",
  "itertools 0.12.0",
  "noise",

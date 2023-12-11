@@ -5,8 +5,8 @@ use bevy_geppetto::Test;
 use bevy_xpbd_3d::{components::ExternalImpulse, plugins::PhysicsDebugPlugin};
 
 use cheese_game::{
-    AppState, Cheese, CheeseRacePlugin, Person, PlayerCameraPlugin, RaceScenePlugin,
-    SceneAssetsPlugin, TerrainPlugin,
+    AppState, Cheese, CheeseRacePlugin, PlayerCameraPlugin, RaceScenePlugin, SceneAssetsPlugin,
+    TerrainPlugin,
 };
 
 fn main() {
@@ -20,26 +20,9 @@ fn main() {
             PhysicsDebugPlugin::default(),
         ))
         .insert_resource(GlobalVolume::new(0.))
-        .add_systems(Startup, spawn_ragdolls)
         .add_systems(Update, go_forward_input);
     })
     .run();
-}
-
-fn spawn_ragdolls(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    for x in -3..=3 {
-        Person::default().spawn_ragdoll(
-            Vec3::new(x as f32, 10., -8.),
-            Vec3::ZERO,
-            &mut commands,
-            &mut meshes,
-            &mut materials,
-        );
-    }
 }
 
 pub(crate) fn go_forward_input(

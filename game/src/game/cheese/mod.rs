@@ -36,7 +36,6 @@ impl Cheese {
     }
 
     pub fn graphic(transform: Transform, scenes: &SceneAssets) -> SceneBundle {
-        info!("{:?}", scenes);
         SceneBundle {
             // TODO: Why does this often fail to pull the correct asset
             scene: scenes.cheese_good.clone(),
