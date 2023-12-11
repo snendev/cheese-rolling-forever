@@ -12,6 +12,9 @@ pub use cheese::*;
 mod level;
 pub use level::*;
 
+mod obstacles;
+pub use obstacles::*;
+
 mod person;
 pub use person::*;
 
@@ -36,6 +39,6 @@ impl Plugin for CheeseRacePlugin {
                 )
                     .run_if(in_state(AppState::Racing).or_else(in_state(AppState::SpawningScene))),
             )
-            .add_plugins((LevelPlugin, CheesePlugin, ScorePlugin));
+            .add_plugins((LevelPlugin, PersonPlugin, CheesePlugin, ScorePlugin));
     }
 }

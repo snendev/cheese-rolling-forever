@@ -75,7 +75,8 @@ fn spawn_scene(mut commands: Commands, cheese_scenes: Res<SceneAssets>) {
             ..Default::default()
         },
     ));
-    commands.spawn((Terrain::default(), Name::new("Terrain"), Level::default()));
+
+    commands.spawn((Level::default(), Level::name()));
     commands.spawn((
         Name::new("Race Countdown Timer"),
         RaceCountdown(Timer::from_seconds(3., TimerMode::Once)),

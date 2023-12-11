@@ -1,26 +1,21 @@
 use bevy::prelude::*;
 
-use crate::{TerrainNoise, TextureAssets};
+use crate::{AppState, TerrainNoise, TextureAssets};
 
 mod systems;
 
-#[derive(Debug, Default)]
-pub struct TerrainPlugin {
-    noise_seed: u32,
-}
-
-impl TerrainPlugin {
-    pub fn new(noise_seed: u32) -> Self {
-        Self { noise_seed }
-    }
-}
+#[derive(Debug)]
+pub struct TerrainPlugin;
 
 impl Plugin for TerrainPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(TerrainNoise::new(self.noise_seed))
-            .add_systems(
-                Update,
-                systems::update_terrain_mesh.run_if(resource_exists::<TextureAssets>()),
-            );
+        app.add_systems(
+            Update,
+            systems::update_terrain_mesh.run_if(
+                resource_exists::<TextureAssets>().and_then(resource_exists::<TerrainNoise>()),
+            ),
+        )
+        .add_systems(OnEnter(AppState::SpawningScene), systems::seed_noise)
+        .add_systems(Update, systems::attach_terrain);
     }
 }

@@ -14,7 +14,7 @@ fn main() {
         app.add_plugins((
             CheeseRacePlugin,
             PhysicsDebugPlugin::default(),
-            TerrainPlugin::default(),
+            TerrainPlugin,
             SceneAssetsPlugin::new(AppState::SpawningScene),
         ))
         .insert_resource(TerrainNoise::from_noise(noise::Constant::new(0.)))
@@ -42,7 +42,7 @@ fn handle_start(
         ..Default::default()
     });
 
-    commands.spawn((Terrain::default(), Terrain::name(), Level::default()));
+    commands.spawn((Level::default(), Level::name()));
 
     for (x, y) in (0..1).zip(0..1) {
         Person::default().spawn_ragdoll(

@@ -33,6 +33,10 @@ impl Level {
         }
     }
 
+    pub fn name() -> Name {
+        Name::new("Level")
+    }
+
     pub fn update(&mut self, cheese_position: Vec3) {
         let cheese_chunk =
             Chunk::from_translation(cheese_position, self.chunk_size, self.quad_size);

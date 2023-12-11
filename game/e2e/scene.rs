@@ -14,7 +14,7 @@ fn main() {
         app.add_plugins((
             PlayerCameraPlugin,
             CheeseRacePlugin,
-            TerrainPlugin::default(),
+            TerrainPlugin,
             RaceScenePlugin,
             SceneAssetsPlugin::new(AppState::SpawningScene),
             PhysicsDebugPlugin::default(),

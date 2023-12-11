@@ -14,7 +14,7 @@ fn main() {
             CheeseRacePlugin,
             RaceScenePlugin,
             // PhysicsDebugPlugin::default(),
-            TerrainPlugin::default(),
+            TerrainPlugin,
             SceneAssetsPlugin::new(AppState::SpawningScene),
         ))
         .insert_resource(Gravity(Vec3::ZERO))

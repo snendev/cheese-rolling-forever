@@ -46,7 +46,8 @@ pub fn run_app(canvas: Option<String>) {
             RaceScenePlugin,
             SceneAssetsPlugin::default(),
             CheeseUIPlugin,
-            TerrainPlugin::new(rand::random()),
+            TerrainPlugin,
+            ObstaclesPlugin,
             MenuPlugin,
         ))
         .run();

@@ -13,7 +13,7 @@ fn main() {
             // but we can confirm that none of these are active, too
             PlayerCameraPlugin,
             CheeseRacePlugin,
-            TerrainPlugin::default(),
+            TerrainPlugin,
             RaceScenePlugin,
             PhysicsDebugPlugin::default(),
             SceneAssetsPlugin::default(),

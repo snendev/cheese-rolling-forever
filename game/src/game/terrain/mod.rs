@@ -16,21 +16,14 @@ use crate::{Chunk, Level, TextureAssets, Vertex};
 #[derive(Clone, Debug, Default)]
 #[derive(Component)]
 pub struct Terrain {
-    pub noise_seed: u32,
     pub chunk_entities: HashMap<Vertex, Vec<Entity>>,
 }
 
 impl Terrain {
-    pub fn new(noise_seed: u32) -> Self {
+    pub fn new() -> Self {
         Self {
-            noise_seed,
             chunk_entities: HashMap::new(),
         }
-    }
-
-    pub fn with_seed(mut self, noise_seed: u32) -> Self {
-        self.noise_seed = noise_seed;
-        self
     }
 
     pub fn name() -> Name {
@@ -75,8 +68,8 @@ impl Terrain {
                     size: level.chunk_size,
                     origin: *origin,
                 };
-                let chunk_bundle = TerrainChunk::new(chunk, self.noise_seed)
-                    .to_bundle(noise, textures, meshes, materials);
+                let chunk_bundle =
+                    TerrainChunk::new(chunk).to_bundle(noise, textures, meshes, materials);
                 let chunk_entity = commands.spawn(chunk_bundle).id();
                 self.chunk_entities.insert(*origin, vec![chunk_entity]);
             }

@@ -8,28 +8,16 @@ use bevy_xpbd_3d::prelude::*;
 
 use crate::{Chunk, TextureAssets, Vertex};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 #[derive(Component)]
 pub struct TerrainChunk {
     // the chunk being rendered
     pub chunk: Chunk,
-    // TODO: a scaling factor on chunk.quad_size which draws fewer triangles for farther away chunks
-    // pub lod_scale_factor: f32,
-    pub noise_seed: u32,
-}
-
-impl Default for TerrainChunk {
-    fn default() -> Self {
-        TerrainChunk::new(
-            Chunk::new((0, 0).into(), (40, 40).into(), Vec2::ONE * 2.),
-            0,
-        )
-    }
 }
 
 impl TerrainChunk {
-    pub fn new(chunk: Chunk, noise_seed: u32) -> Self {
-        Self { chunk, noise_seed }
+    pub fn new(chunk: Chunk) -> Self {
+        Self { chunk }
     }
 
     // get the triangles to render the quad with origin at local_vertex

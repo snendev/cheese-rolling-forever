@@ -15,7 +15,7 @@ fn main() {
             PlayerCameraPlugin,
             CheeseRacePlugin,
             PhysicsDebugPlugin::default(),
-            TerrainPlugin::default(),
+            TerrainPlugin,
             SceneAssetsPlugin::new(AppState::SpawningScene),
         ))
         .insert_resource(TerrainNoise::from_noise(noise::Constant::new(0.)))
@@ -35,5 +35,5 @@ fn handle_start(mut commands: Commands, scenes: Res<SceneAssets>) {
     });
 
     commands.spawn(Cheese::bundle(Cheese::default_transform(), &scenes));
-    commands.spawn((Terrain::default(), Terrain::name(), Level::default()));
+    commands.spawn((Level::default(), Level::name()));
 }

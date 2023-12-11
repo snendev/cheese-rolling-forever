@@ -2,7 +2,17 @@ use bevy::prelude::*;
 
 use crate::{Level, Terrain, TerrainNoise, TextureAssets};
 
-pub(crate) fn update_terrain_mesh(
+pub(super) fn seed_noise(mut commands: Commands) {
+    commands.insert_resource(TerrainNoise::new(rand::random()));
+}
+
+pub(super) fn attach_terrain(mut commands: Commands, query: Query<Entity, Added<Level>>) {
+    for entity in query.iter() {
+        commands.entity(entity).insert(Terrain::default());
+    }
+}
+
+pub(super) fn update_terrain_mesh(
     mut commands: Commands,
     mut terrain_query: Query<(&mut Terrain, &Level)>,
     noise: Res<TerrainNoise>,
