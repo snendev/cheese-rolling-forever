@@ -47,16 +47,6 @@ impl Chunk {
         self.size.x * self.size.z
     }
 
-    // IDK pal
-    pub fn to_other_global_coords(&self, local_vertex: Vertex) -> Vertex {
-        let global_vx = local_vertex.x + self.origin.x * self.size.x;
-        let global_vz = self.size.z + self.origin.z * self.size.z;
-        Vertex {
-            x: global_vx,
-            z: global_vz,
-        }
-    }
-
     pub fn to_global_coords(&self, local_vertex: Vertex) -> Vertex {
         let global_vx = local_vertex.x + self.origin.x * self.size.x;
         let global_vz = self.size.z - local_vertex.z + self.origin.z * self.size.z;

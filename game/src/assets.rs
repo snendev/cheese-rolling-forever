@@ -77,6 +77,8 @@ pub struct TextureAssets {
     pub ground_displacement: Handle<Image>,
     #[asset(path = "textures/Dirt_Weeds01_normal.jpg")]
     pub ground_normal: Handle<Image>,
+    #[asset(path = "textures/bricks.png")]
+    pub bricks: Handle<Image>,
 }
 
 fn tile_terrain_assets(textures: Res<TextureAssets>, mut images: ResMut<Assets<Image>>) {

@@ -8,7 +8,7 @@ use bevy_xpbd_3d::prelude::*;
 use crate::{AppState, Cheese, Person};
 
 // systems
-const CHEESE_PULL_STRENGTH: f32 = 1e5;
+const CHEESE_PULL_STRENGTH: f32 = 1.2e5;
 pub(crate) fn chase_cheese(
     mut arm_query: Query<(&Transform, &mut ExternalImpulse), With<Person>>,
     cheese_query: Query<&Transform, With<Cheese>>,

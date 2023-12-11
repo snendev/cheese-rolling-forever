@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{Level, ObstacleNoise, Obstacles};
+use crate::{Level, ObstacleNoise, Obstacles, TextureAssets};
 
 pub(super) fn seed_noise(mut commands: Commands) {
     commands.insert_resource(ObstacleNoise::new(rand::random()));
@@ -16,6 +16,7 @@ pub(super) fn update_obstacles(
     mut commands: Commands,
     mut obstacles_query: Query<(&mut Obstacles, &Level)>,
     noise: Res<ObstacleNoise>,
+    textures: Res<TextureAssets>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
@@ -24,6 +25,7 @@ pub(super) fn update_obstacles(
             level,
             &noise.get(),
             &mut commands,
+            &textures,
             &mut meshes,
             &mut materials,
         );

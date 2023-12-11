@@ -5,7 +5,7 @@ use bevy_geppetto::Test;
 use bevy_xpbd_3d::plugins::PhysicsDebugPlugin;
 
 use cheese_game::{
-    AppState, Cheese, CheeseRacePlugin, Level, Person, SceneAssetsPlugin, Terrain, TerrainNoise,
+    AppState, Cheese, CheeseRacePlugin, Level, Person, SceneAssetsPlugin, TerrainNoise,
     TerrainPlugin,
 };
 

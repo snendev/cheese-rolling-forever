@@ -2,7 +2,7 @@ use bevy_xpbd_3d::components::{Collider, ColliderDensity, RigidBody};
 
 use bevy::prelude::*;
 
-use crate::{Chunk, Vertex};
+use crate::{Chunk, TextureAssets, Vertex};
 
 #[derive(Clone, Debug)]
 #[derive(Component, Reflect)]
@@ -25,6 +25,7 @@ impl Wall {
 
     pub fn to_bundle(
         self,
+        textures: &TextureAssets,
         meshes: &mut Assets<Mesh>,
         materials: &mut Assets<StandardMaterial>,
     ) -> impl Bundle {
@@ -42,7 +43,10 @@ impl Wall {
             ColliderDensity(1.),
             PbrBundle {
                 mesh: meshes.add(shape::Box::new(self.size.x, Self::HEIGHT, self.size.y).into()),
-                material: materials.add(Color::RED.into()),
+                material: materials.add(StandardMaterial {
+                    base_color_texture: Some(textures.bricks.clone()),
+                    ..Default::default()
+                }),
                 transform: Transform::from_translation(sloped_translation)
                     .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_8)),
                 ..Default::default()

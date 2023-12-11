@@ -6,7 +6,7 @@ use bevy_xpbd_3d::plugins::PhysicsDebugPlugin;
 
 use cheese_game::{
     AppState, Cheese, CheeseRacePlugin, Level, PlayerCameraPlugin, SceneAssets, SceneAssetsPlugin,
-    Terrain, TerrainNoise, TerrainPlugin,
+    TerrainNoise, TerrainPlugin,
 };
 
 fn main() {

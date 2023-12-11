@@ -56,8 +56,8 @@ impl Cheese {
                 combine_rule: CoefficientCombine::Min,
             },
             Friction::new(0.5),
-            LinearDamping(0.1),
-            AngularDamping(0.1),
+            LinearDamping(0.08),
+            AngularDamping(0.08),
             Dominance(1),
             Self::graphic(transform, scenes),
         )

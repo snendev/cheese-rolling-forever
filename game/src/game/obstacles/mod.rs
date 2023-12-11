@@ -3,7 +3,7 @@ use rand::Rng;
 
 use bevy::{prelude::*, utils::HashMap};
 
-use crate::{Level, Vertex};
+use crate::{Level, TextureAssets, Vertex};
 
 use super::Chunk;
 
@@ -35,10 +35,13 @@ impl Obstacles {
         &'a self,
         chunk: Chunk,
         noise: &'a impl NoiseFn<f64, 2>,
+        textures: &'a TextureAssets,
         meshes: &'a mut Assets<Mesh>,
         materials: &'a mut Assets<StandardMaterial>,
     ) -> impl Iterator<Item = impl Bundle> + 'a {
         let mut rng = rand::thread_rng();
+        let before_first_chunk = chunk.origin.z <= 0;
+        let before_fifth_chunk = chunk.origin.z < 5;
         chunk
             .iter_by_row()
             // don't iterate along the final edge
@@ -47,10 +50,14 @@ impl Obstacles {
             .step_by(rng.gen_range((chunk.size.x * 4)..(chunk.size.x * 4 + 7)) as usize)
             // and make a wall there if the noise value is high enough
             .filter_map(move |vertex| {
-                let global_vertex = chunk.to_other_global_coords(vertex);
+                if before_first_chunk {
+                    return None;
+                }
+                let global_vertex = chunk.to_global_coords(vertex);
                 let position = chunk.to_translation(global_vertex);
                 let noise = noise.get([position.x as f64, position.y as f64]);
-                if noise > 0.99 {
+                let noise_threshold = if before_fifth_chunk { 0.995 } else { 0.98 };
+                if noise > noise_threshold {
                     info!("{:?} {} {}", global_vertex, position, noise);
                     Some(
                         Wall::new(
@@ -61,7 +68,7 @@ impl Obstacles {
                                 chunk.quad_size.y,
                             ),
                         )
-                        .to_bundle(meshes, materials),
+                        .to_bundle(textures, meshes, materials),
                     )
                 } else {
                     None
@@ -74,6 +81,7 @@ impl Obstacles {
         level: &Level,
         noise: &impl NoiseFn<f64, 2>,
         commands: &mut Commands,
+        textures: &TextureAssets,
         meshes: &mut Assets<Mesh>,
         materials: &mut Assets<StandardMaterial>,
     ) {
@@ -104,10 +112,13 @@ impl Obstacles {
                 let chunk = Chunk {
                     quad_size: level.quad_size,
                     size: level.chunk_size,
-                    origin: *origin,
+                    // IDK why this works but it does
+                    origin: Vertex::new(origin.x, -origin.z),
                 };
                 let mut chunk_entities = vec![];
-                for bundle in self.generate_obstacles_for_chunk(chunk, noise, meshes, materials) {
+                for bundle in
+                    self.generate_obstacles_for_chunk(chunk, noise, textures, meshes, materials)
+                {
                     let entity = commands.spawn(bundle).id();
                     chunk_entities.push(entity)
                 }
