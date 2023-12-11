@@ -2,6 +2,8 @@
 
 This is a game made for Bevy Jam #4. It is inspired by the Cooper's Hill Cheese Rolling and Wake. Players roll down a hill as a wheel of cheese and dodge the ragdolls falling from above.
 
+Playable on [itch.io](https://snendev.itch.io/cheese-rolling-forever) or my [lab](https://lab.snen.dev/cheese)
+
 ### Controls
 
 Use the Left and Right keys (or the A and D keys) to move in that direction.

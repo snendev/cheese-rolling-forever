@@ -131,8 +131,15 @@ pub(crate) fn spawn_ragdolls(
     };
 
     // how many ragdolls to keep active
+    #[cfg(target_arch = "wasm32")]
+    const MAX_JUGGLE_COUNT: usize = 40;
+    #[cfg(not(target_arch = "wasm32"))]
     const MAX_JUGGLE_COUNT: usize = 100;
+    #[cfg(target_arch = "wasm32")]
+    const NEAR_MAX_COUNT: usize = 30;
+    #[cfg(not(target_arch = "wasm32"))]
     const NEAR_MAX_COUNT: usize = 60;
+
     // use different spawn rates when near max and not
     const LOW_COUNT_SPAWN_RATE: Duration = Duration::from_secs(2);
     const HIGH_COUNT_SPAWN_RATE: Duration = Duration::from_secs(4);
