@@ -41,7 +41,11 @@ impl Plugin for SceneAssetsPlugin {
                 despawn_all_recursive::<LoadingUICamera>,
             ),
         )
-        .add_systems(OnEnter(AppState::SpawningScene), play_bg_music);
+        .add_systems(
+            OnEnter(AppState::SpawningScene),
+            // after we play once, just keep the loop going forever
+            play_bg_music.run_if(run_once()),
+        );
     }
 }
 

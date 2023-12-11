@@ -1,7 +1,13 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 
-use crate::{despawn_all_recursive, AppState, Cheese, SceneAssets, Terrain, TerrainChunk};
+use crate::{
+    despawn_all_recursive, AppState, Cheese, Person, PlayerCamera, SceneAssets, Terrain,
+    TerrainChunk,
+};
+
+mod ui;
+use ui::*;
 
 pub struct RaceScenePlugin;
 
@@ -24,9 +30,33 @@ impl Plugin for RaceScenePlugin {
                 OnExit(AppState::Countdown),
                 despawn_all_recursive::<CountdownUI>,
             )
-            .add_systems(OnEnter(AppState::Racing), yeet_cheese);
+            .add_systems(OnEnter(AppState::Racing), yeet_cheese)
+            .add_systems(OnEnter(AppState::GameOver), spawn_game_over_ui)
+            .add_systems(
+                Update,
+                (handle_replay_action, handle_quit_action).run_if(in_state(AppState::GameOver)),
+            )
+            .add_systems(
+                OnExit(AppState::GameOver),
+                (
+                    apply_deferred,
+                    (
+                        despawn_all_recursive::<Cheese>,
+                        despawn_all_recursive::<Terrain>,
+                        despawn_all_recursive::<TerrainChunk>,
+                        despawn_all_recursive::<Person>,
+                        despawn_all_recursive::<GameLighting>,
+                        despawn_all_recursive::<PlayerCamera>,
+                        despawn_all_recursive::<GameOverUI>,
+                    ),
+                )
+                    .chain(),
+            );
     }
 }
+
+#[derive(Component)]
+pub struct GameLighting;
 
 #[derive(Component)]
 pub struct RaceCountdown(Timer);
@@ -34,14 +64,17 @@ pub struct RaceCountdown(Timer);
 const CHEESE_SPAWN_Z: f32 = 50.;
 
 fn spawn_scene(mut commands: Commands, cheese_scenes: Res<SceneAssets>) {
-    commands.spawn(DirectionalLightBundle {
-        directional_light: DirectionalLight {
-            illuminance: 10.0e3,
+    commands.spawn((
+        GameLighting,
+        DirectionalLightBundle {
+            directional_light: DirectionalLight {
+                illuminance: 10.0e3,
+                ..Default::default()
+            },
+            transform: Transform::from_xyz(2., 10., 5.).looking_at(Vec3::ZERO, Vec3::Y),
             ..Default::default()
         },
-        transform: Transform::from_xyz(2., 10., 5.).looking_at(Vec3::ZERO, Vec3::Y),
-        ..Default::default()
-    });
+    ));
     commands.spawn(Terrain::default().to_bundle());
     commands.spawn((
         Name::new("Race Countdown Timer"),
@@ -106,56 +139,4 @@ fn countdown_race(
 fn yeet_cheese(mut cheese_query: Query<&mut ExternalImpulse, With<Cheese>>) {
     let mut impulse = cheese_query.single_mut();
     impulse.set_impulse(Vec3::Z * 4.);
-}
-
-#[derive(Component)]
-struct CountdownUI;
-#[derive(Component)]
-struct CountdownUIText;
-
-fn spawn_countdown_ui(mut commands: Commands) {
-    commands
-        .spawn((
-            Name::new("Countdown UI"),
-            CountdownUI,
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-        ))
-        .with_children(|builder| {
-            builder.spawn((
-                CountdownUIText,
-                TextBundle::from_section(
-                    "3",
-                    TextStyle {
-                        font_size: 512.0,
-                        color: Color::rgb(0.02, 0.02, 0.1),
-                        ..Default::default()
-                    },
-                ),
-            ));
-        });
-}
-
-fn track_countdown_ui(
-    mut ui_query: Query<&mut Text, With<CountdownUIText>>,
-    countdown_query: Query<&RaceCountdown>,
-) {
-    let Ok(mut ui_text) = ui_query.get_single_mut() else {
-        return;
-    };
-    let Ok(countdown) = countdown_query.get_single() else {
-        return;
-    };
-    ui_text.sections[0].value = format!(
-        "{}",
-        (countdown.0.duration() - countdown.0.elapsed()).as_secs() + 1
-    );
 }

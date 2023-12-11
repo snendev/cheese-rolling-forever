@@ -33,7 +33,7 @@ pub(crate) fn detect_grab(
         for entity in colliding_entities.0.iter() {
             if cheese_query.contains(*entity) {
                 info!("Caught the cheese!!!!");
-                state.set(AppState::Closing);
+                state.set(AppState::GameOver);
             }
         }
     }

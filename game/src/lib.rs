@@ -15,6 +15,9 @@ pub use scene::*;
 mod systems;
 pub use systems::*;
 
+mod ui;
+pub use ui::*;
+
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, States)]
 pub enum AppState {
     #[default]
@@ -23,7 +26,7 @@ pub enum AppState {
     SpawningScene,
     Countdown,
     Racing,
-    Closing,
+    GameOver,
 }
 
 pub fn run_app(canvas: Option<String>) {
@@ -42,6 +45,7 @@ pub fn run_app(canvas: Option<String>) {
             CheeseRacePlugin,
             RaceScenePlugin,
             SceneAssetsPlugin::default(),
+            CheeseUIPlugin,
             TerrainPlugin::new(rand::random()),
             MenuPlugin,
         ))

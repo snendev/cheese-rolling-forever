@@ -19,10 +19,14 @@ impl Plugin for MenuPlugin {
         .add_systems(
             OnExit(AppState::Menu),
             (
-                despawn_all_recursive::<MenuCamera>,
-                despawn_all_recursive::<MenuUI>,
-                despawn_all_recursive::<MenuGraphic>,
-            ),
+                apply_deferred,
+                (
+                    despawn_all_recursive::<MenuCamera>,
+                    despawn_all_recursive::<MenuUI>,
+                    despawn_all_recursive::<MenuGraphic>,
+                ),
+            )
+                .chain(),
         )
         .add_systems(Update, (spin_graphic, handle_play));
     }

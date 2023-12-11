@@ -12,6 +12,9 @@ pub use cheese::*;
 mod person;
 pub use person::*;
 
+mod score;
+pub use score::*;
+
 mod terrain;
 pub use terrain::*;
 
@@ -30,6 +33,6 @@ impl Plugin for CheeseRacePlugin {
                 )
                     .run_if(in_state(AppState::Racing).or_else(in_state(AppState::SpawningScene))),
             )
-            .add_plugins((PersonPlugin, CheesePlugin));
+            .add_plugins((PersonPlugin, CheesePlugin, ScorePlugin));
     }
 }

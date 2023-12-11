@@ -25,6 +25,7 @@ impl PlayerCamera {
         let camera_translation = Self::CAM_OFFSET + target_transform.translation;
         let target = target_transform.translation;
         (
+            Name::new("Player Camera"),
             PlayerCamera,
             dolly::Rig::builder()
                 .with(Position::new(target_transform.translation))
