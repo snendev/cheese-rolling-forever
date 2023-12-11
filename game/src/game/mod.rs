@@ -12,8 +12,6 @@ pub use cheese::*;
 mod person;
 pub use person::*;
 
-mod systems;
-
 mod terrain;
 pub use terrain::*;
 
@@ -32,17 +30,6 @@ impl Plugin for CheeseRacePlugin {
                 )
                     .run_if(in_state(AppState::Racing).or_else(in_state(AppState::SpawningScene))),
             )
-            .add_systems(
-                Update,
-                (
-                    systems::handle_inputs,
-                    systems::chase_cheese,
-                    systems::detect_grab,
-                    systems::spawn_ragdolls,
-                    systems::loop_ragdolls,
-                    systems::despawn_infinites,
-                )
-                    .run_if(in_state(AppState::Racing)),
-            );
+            .add_plugins((PersonPlugin, CheesePlugin));
     }
 }

@@ -1,6 +1,11 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 
+use crate::AppState;
+
+mod systems;
+use systems::*;
+
 #[derive(Clone, Copy)]
 #[derive(Component)]
 pub struct Cheese;
@@ -64,5 +69,13 @@ impl Cheese {
             Dominance(1),
             Self::graphic(transform, meshes, materials),
         )
+    }
+}
+
+pub struct CheesePlugin;
+
+impl Plugin for CheesePlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, handle_inputs.run_if(in_state(AppState::Racing)));
     }
 }

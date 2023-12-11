@@ -19,6 +19,7 @@ fn main() {
             CheeseAssetsPlugin::new(AppState::SpawningScene),
             PhysicsDebugPlugin::default(),
         ))
+        .insert_resource(GlobalVolume::new(0.))
         .add_systems(Startup, spawn_ragdolls)
         .add_systems(Update, go_forward_input);
     })

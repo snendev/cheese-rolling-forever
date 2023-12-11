@@ -1,20 +1,18 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 
+use super::Person;
+
 // TODO build a lakitu
 
-#[derive(Clone, Copy)]
 #[derive(Component)]
-pub struct Person {
-    size: f32,
-    girth: f32,
-}
-
-impl Default for Person {
-    fn default() -> Self {
-        Self::new(1., 1.)
-    }
-}
+pub(crate) struct Head;
+#[derive(Component)]
+pub(crate) struct Arm;
+#[derive(Component)]
+pub(crate) struct Hand;
+#[derive(Component)]
+pub(crate) struct Leg;
 
 impl Person {
     const BODY_MASS_DENSITY: f32 = 5e5;
@@ -27,10 +25,6 @@ impl Person {
     const BASE_LIMB_LENGTH: f32 = 0.6;
     const BASE_LIMB_RADIUS: f32 = 0.05;
     const ARM_TO_LEG_RATIO: f32 = 0.75;
-
-    pub fn new(size: f32, girth: f32) -> Self {
-        Self { size, girth }
-    }
 
     pub fn spawn_ragdoll(
         self,
@@ -379,12 +373,3 @@ impl Person {
             .add_child(right_hip_joint);
     }
 }
-
-#[derive(Component)]
-pub(crate) struct Head;
-#[derive(Component)]
-pub(crate) struct Arm;
-#[derive(Component)]
-pub(crate) struct Hand;
-#[derive(Component)]
-pub(crate) struct Leg;

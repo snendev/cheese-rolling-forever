@@ -34,7 +34,11 @@ impl Plugin for CheeseAssetsPlugin {
         .add_systems(Startup, spawn_loading_ui)
         .add_systems(
             OnExit(AppState::Loading),
-            (tile_terrain_assets, despawn_all_recursive::<LoadingUI>),
+            (
+                tile_terrain_assets,
+                despawn_all_recursive::<LoadingUI>,
+                despawn_all_recursive::<LoadingUICamera>,
+            ),
         )
         .add_systems(OnEnter(AppState::SpawningScene), play_bg_music);
     }
@@ -85,9 +89,11 @@ fn play_bg_music(mut commands: Commands, bg_track: Res<AudioAssets>) {
 
 #[derive(Component)]
 struct LoadingUI;
+#[derive(Component)]
+struct LoadingUICamera;
 
 fn spawn_loading_ui(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn((LoadingUICamera, Camera2dBundle::default()));
     commands
         .spawn((
             Name::new("Loading UI"),
