@@ -3,8 +3,6 @@ use bevy_xpbd_3d::prelude::*;
 
 use super::Person;
 
-// TODO build a lakitu
-
 #[derive(Component)]
 pub(crate) struct Head;
 #[derive(Component)]
@@ -229,7 +227,7 @@ impl Person {
                 RigidBody::Dynamic,
                 torso_collider,
                 ColliderDensity(Self::BODY_MASS_DENSITY),
-                GravityScale(1.2),
+                GravityScale(1.1),
                 LinearVelocity(initial_velocity),
                 PbrBundle {
                     mesh: meshes.add(torso_shape.into()),

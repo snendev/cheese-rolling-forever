@@ -5,12 +5,12 @@ use bevy::{prelude::*, utils::HashSet};
 
 use bevy_xpbd_3d::prelude::*;
 
-use crate::{AppState, Cheese, Hand, Person};
+use crate::{AppState, Cheese, Person};
 
 // systems
-const CHEESE_PULL_STRENGTH: f32 = 1e6;
+const CHEESE_PULL_STRENGTH: f32 = 1e5;
 pub(crate) fn chase_cheese(
-    mut arm_query: Query<(&Transform, &mut ExternalImpulse), With<Hand>>,
+    mut arm_query: Query<(&Transform, &mut ExternalImpulse), With<Person>>,
     cheese_query: Query<&Transform, With<Cheese>>,
 ) {
     let Ok(cheese_transform) = cheese_query.get_single() else {
@@ -84,20 +84,32 @@ pub(crate) fn loop_ragdolls(
         return;
     };
 
-    // let mut rng = rand::thread_rng();
-    let mut count_looped_this_frame = 0;
-    // let random_offset = rng.gen_range(0..5);
+    let mut num_to_loop = 0;
+    for (transform, _, _) in ragdoll_query.iter() {
+        if (cheese_transform.translation.y - transform.translation.y).abs() >= 300.
+            || transform.translation.is_nan()
+        {
+            num_to_loop += 1;
+        }
+    }
+    let mut rng = rand::thread_rng();
+    let random_offset = rng.gen_range(-30..=30);
+    let mut num_looped = 0;
     for (mut transform, mut linvel, mut angvel) in ragdoll_query.iter_mut() {
         if (cheese_transform.translation.y - transform.translation.y).abs() >= 300.
             || transform.translation.is_nan()
         {
-            *transform = Transform::from_translation(get_spawn_point(
-                cheese_transform.translation,
-                count_looped_this_frame, // + random_offset
-                0.,
-            ));
-            count_looped_this_frame += 1;
-            *linvel = cheese_velocity.0.into();
+            *transform = Transform::from_translation(
+                get_spawn_point(
+                    cheese_transform.translation,
+                    num_looped - num_to_loop / 2,
+                    random_offset as f32,
+                )
+                // add a vertical component to avoid collisions with spawn_ragdolls 
+                + Vec3::Y * 5.,
+            );
+            num_looped += 1;
+            *linvel = (cheese_velocity.0 * 0.8).into();
             *angvel = AngularVelocity::ZERO;
         }
     }
@@ -120,22 +132,22 @@ pub(crate) fn spawn_ragdolls(
     const MAX_JUGGLE_COUNT: usize = 100;
     const NEAR_MAX_COUNT: usize = 35;
     // use different spawn rates when near max and not
-    const LOW_COUNT_SPAWN_RATE: Duration = Duration::from_secs(1);
+    const LOW_COUNT_SPAWN_RATE: Duration = Duration::from_secs(2);
     const HIGH_COUNT_SPAWN_RATE: Duration = Duration::from_secs(4);
 
     let time_since_last_spawn = time.elapsed() - *last_spawned_time;
     let num_ragdolls = ragdoll_query.iter().count();
 
     let mut rng = rand::thread_rng();
-    let mut spawn_ragdoll = |index: Option<usize>| {
-        let index = index.unwrap_or_else(|| rng.gen_range(0..5));
+    let mut spawn_ragdoll = |index: Option<i32>| {
+        let index = index.unwrap_or_else(|| rng.gen_range(0..8));
         Person::new(
             1.5 + rng.gen_range(1..=10) as f32 / 5.,
             1.5 + rng.gen_range(1..=10) as f32 / 5.,
         )
         .spawn_ragdoll(
-            get_spawn_point(cheese_transform.translation, index, 0.),
-            cheese_velocity.0,
+            get_spawn_point(cheese_transform.translation, index, 0.) + Vec3::Y * 4.,
+            cheese_velocity.0 * 0.8,
             &mut commands,
             &mut meshes,
             &mut materials,
@@ -157,7 +169,7 @@ pub(crate) fn spawn_ragdolls(
     } else {
         // spawn bursts of ragdolls
         if time_since_last_spawn > LOW_COUNT_SPAWN_RATE {
-            for index in 0..4 {
+            for index in -4..=4 {
                 spawn_ragdoll(Some(index));
             }
         }
@@ -165,12 +177,12 @@ pub(crate) fn spawn_ragdolls(
 }
 
 // add random x later
-const LAKITU_OFFSET: Vec3 = Vec3::new(0., 60., -40.);
+const LAKITU_OFFSET: Vec3 = Vec3::new(0., 50., -40.);
 
-fn get_spawn_point(cheese_translation: Vec3, index: usize, additional_offset: f32) -> Vec3 {
+fn get_spawn_point(cheese_translation: Vec3, index: i32, additional_offset: f32) -> Vec3 {
     const AVG_GAP: f32 = 8.;
     cheese_translation
         + LAKITU_OFFSET
-        + Vec3::X * AVG_GAP * (index as f32)
+        + Vec3::X * AVG_GAP * index as f32
         + Vec3::X * additional_offset
 }

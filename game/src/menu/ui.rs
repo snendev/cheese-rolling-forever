@@ -44,10 +44,10 @@ pub(super) fn spawn_start_menu(mut commands: Commands) {
             MenuUI,
             NodeBundle {
                 style: Style {
-                    width: Val::Percent(60.0),
+                    width: Val::Percent(100.0),
                     height: Val::Percent(100.0),
-                    flex_direction: FlexDirection::Column,
                     justify_content: JustifyContent::SpaceBetween,
+                    padding: UiRect::percent(4., 4., 6., 6.),
                     ..Default::default()
                 },
                 ..Default::default()
@@ -55,13 +55,22 @@ pub(super) fn spawn_start_menu(mut commands: Commands) {
         ))
         .with_children(|builder| {
             builder
-                .spawn((Name::new("Title Container"), title_container()))
+                .spawn((
+                    Name::new("Left UI"),
+                    NodeBundle {
+                        style: Style {
+                            width: Val::Percent(40.0),
+                            height: Val::Percent(100.0),
+                            flex_direction: FlexDirection::Column,
+                            justify_content: JustifyContent::SpaceBetween,
+                            align_items: AlignItems::Center,
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    },
+                ))
                 .with_children(|builder| {
                     builder.spawn((Name::new("Title"), title_node()));
-                });
-            builder
-                .spawn((Name::new("Controls panel"), controls_panel_node()))
-                .with_children(|builder| {
                     builder
                         .spawn((Name::new("Play Button"), PlayButton, play_button()))
                         .with_children(|parent| {
@@ -78,17 +87,25 @@ pub(super) fn spawn_start_menu(mut commands: Commands) {
                             ));
                         });
                 });
+            builder
+                .spawn((
+                    Name::new("Right UI"),
+                    NodeBundle {
+                        style: Style {
+                            width: Val::Percent(40.0),
+                            height: Val::Percent(100.0),
+                            flex_direction: FlexDirection::Column,
+                            justify_content: JustifyContent::FlexEnd,
+                            // padding: UiRect::percent(0., 0., 0., 5.),
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    },
+                ))
+                .with_children(|builder| {
+                    builder.spawn((Name::new("Instructions"), instructions()));
+                });
         });
-}
-
-fn title_container() -> NodeBundle {
-    NodeBundle {
-        style: Style {
-            padding: UiRect::percent(30., 30., 5., 0.),
-            ..Default::default()
-        },
-        ..Default::default()
-    }
 }
 
 fn title_node() -> TextBundle {
@@ -102,14 +119,19 @@ fn title_node() -> TextBundle {
     )
 }
 
-fn controls_panel_node() -> NodeBundle {
-    NodeBundle {
-        style: Style {
-            padding: UiRect::percent(30., 30., 0., 20.),
-            ..Default::default()
-        },
+fn instructions() -> TextBundle {
+    let style = TextStyle {
+        font_size: 32.,
+        color: Color::rgba(1., 1., 1., 0.75),
         ..Default::default()
-    }
+    };
+    TextBundle::from_sections(vec![
+        TextSection::new(
+            "To steer/move left/right, press the Left and Right keys.\n",
+            style.clone(),
+        ),
+        TextSection::new("Look backward with Space.", style),
+    ])
 }
 
 fn play_button() -> ButtonBundle {
@@ -118,6 +140,7 @@ fn play_button() -> ButtonBundle {
             width: Val::Px(150.0),
             height: Val::Px(65.0),
             border: UiRect::all(Val::Px(5.0)),
+            margin: UiRect::percent(0., 0., 0., 5.),
             // horizontally center child text
             justify_content: JustifyContent::Center,
             // vertically center child text

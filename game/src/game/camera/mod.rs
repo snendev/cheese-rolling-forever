@@ -63,7 +63,7 @@ impl PlayerCamera {
                 CameraDirection::Forward => Self::CAM_OFFSET,
                 CameraDirection::Backward => Vec3::new(
                     Self::CAM_OFFSET.x,
-                    Self::CAM_OFFSET.z * 0.5 - velocity.z * 0.5,
+                    Self::CAM_OFFSET.z * 2.5 - velocity.z * 0.3,
                     Self::CAM_OFFSET.y * 2. + velocity.z * 0.5,
                 ),
             };

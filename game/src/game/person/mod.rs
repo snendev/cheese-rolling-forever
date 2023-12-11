@@ -3,7 +3,6 @@ use bevy::prelude::*;
 use crate::AppState;
 
 mod ragdoll;
-pub(crate) use ragdoll::*;
 
 mod systems;
 use systems::*;

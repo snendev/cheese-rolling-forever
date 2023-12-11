@@ -82,7 +82,7 @@ fn ready_cheese(
             return;
         }
         let y = -hit.time_of_impact + 10.;
-        let cheese_spawn_position = Vec3::new(0., y + Cheese::RADIUS * 2., CHEESE_SPAWN_Z);
+        let cheese_spawn_position = Vec3::new(0., y + Cheese::RADIUS * 3., CHEESE_SPAWN_Z);
         *cheese_transform = Transform::from_translation(cheese_spawn_position)
             .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2));
     }
